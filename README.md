@@ -1,1 +1,1 @@
-# marlin
+# The Marlin language kernel
