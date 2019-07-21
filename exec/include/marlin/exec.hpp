@@ -1,6 +1,6 @@
 #ifndef marlin_exec_hpp
 #define marlin_exec_hpp
 
-#include <jsc/jsc.hpp>
+#include "details/environment.hpp"
 
 #endif  // marlin_exec_hpp
