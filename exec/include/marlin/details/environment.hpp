@@ -3,6 +3,8 @@
 
 #include <jsc/jsc.hpp>
 
+#include "generator.hpp"
+
 namespace marlin::exec {
 
 struct environment {
@@ -28,11 +30,15 @@ struct environment {
         });
   }
 
-  // temporary interface
-  inline void execute(std::string javascript,
-                      std::string source_url = "<anonymous>") {
+  inline void execute(code&& c, std::string source_url = "<anonymous>") {
+    execute(c, source_url);
+  }
+
+  inline void execute(code& c, std::string source_url = "<anonymous>") {
+    auto javascript = generator::generate(c);
     _ctx.clear_exception();
     _ctx.eval_script(javascript, source_url);
+    // TODO: Check runtime errors
   }
 
  private:
