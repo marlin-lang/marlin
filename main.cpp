@@ -11,8 +11,9 @@ int main(int argc, char* argv[]) {
   env.register_print_callback([](auto string) { std::cout << string; });
 
   marlin::code code = marlin::ast::binary_expression{
-      marlin::ast::number_literal{10}, marlin::ast::binary_op::multiply,
-      marlin::ast::number_literal{7}};
+      marlin::ast::unary_expression{marlin::ast::unary_op::negative,
+                                    marlin::ast::number_literal{10}},
+      marlin::ast::binary_op::multiply, marlin::ast::number_literal{7}};
   env.execute(code);
 
   return 0;

@@ -1,9 +1,13 @@
 #ifndef marlin_ast_specs_hpp
 #define marlin_ast_specs_hpp
 
+#include <cstdint>
+
 namespace marlin::ast {
 
-enum class binary_op { add, subtract, multiply, divide };
+enum class unary_op : uint8_t { positive, negative };
+
+enum class binary_op : uint8_t { add, subtract, multiply, divide };
 
 }  // namespace marlin::ast
 

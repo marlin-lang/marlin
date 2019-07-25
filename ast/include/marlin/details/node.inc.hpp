@@ -26,17 +26,17 @@ struct type_map {
 
 }  // namespace utils
 
-#define ASTS(X) X(binary_expression) X(number_literal)
+#define ASTS(X) X(unary_expression) X(binary_expression) X(number_literal)
 
-#define LIST_TEMPLATE(NAME) NAME,
+#define _LIST_TEMPLATE(NAME) NAME,
 
 template <typename node_type>
 inline constexpr size_t node::get_typeid() noexcept {
-  return utils::type_map<node_type, ASTS(LIST_TEMPLATE) void>::index;
+  return utils::type_map<node_type, ASTS(_LIST_TEMPLATE) void>::index;
 }
 
-#define SWITCH_CASE_TEMPLATE(NAME) \
-  case get_typeid<NAME>():         \
+#define _SWITCH_CASE_TEMPLATE(NAME) \
+  case get_typeid<NAME>():          \
     return callable(as<NAME>());
 
 template <typename return_type, typename callable_type>
@@ -45,7 +45,7 @@ inline return_type node::apply(callable_type callable) {
     default:
       /* cannot happen! */
       [[fallthrough]];
-      ASTS(SWITCH_CASE_TEMPLATE)
+      ASTS(_SWITCH_CASE_TEMPLATE)
   }
 }
 template <typename return_type, typename callable_type>
@@ -54,7 +54,7 @@ inline return_type node::apply(callable_type callable) const {
     default:
       /* cannot happen! */
       [[fallthrough]];
-      ASTS(SWITCH_CASE_TEMPLATE)
+      ASTS(_SWITCH_CASE_TEMPLATE)
   }
 }
 
