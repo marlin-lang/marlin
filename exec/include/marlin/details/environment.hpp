@@ -30,12 +30,12 @@ struct environment {
         });
   }
 
-  inline void execute(code&& c, std::string source_url = "<anonymous>") {
+  inline void execute(code&& c, const std::string& source_url = "<anonymous>") {
     execute(c, source_url);
   }
 
-  inline void execute(code& c, std::string source_url = "<anonymous>") {
-    auto javascript = generator::generate(c);
+  inline void execute(code& c, const std::string& source_url = "<anonymous>") {
+    const auto javascript = generator::generate(c);
     _ctx.clear_exception();
     _ctx.eval_script(javascript, source_url);
     // TODO: Check runtime errors

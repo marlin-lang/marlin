@@ -18,7 +18,7 @@ struct generator {
          jsast::ast::expression_statement{jsast::ast::call_expression{
              jsast::ast::identifier{"print"},
              {jsast::ast::string_literal("\n")}}}}});
-    return gen.str();
+    return std::move(gen).str();
   }
 
  private:
@@ -55,7 +55,7 @@ struct generator {
   }
 
   static inline auto get_jsast(ast::number_literal& literal) {
-    return jsast::ast::number_literal{literal.number};
+    return jsast::ast::raw_literal{literal.number};
   }
 
 };  // namespace marlin::exec

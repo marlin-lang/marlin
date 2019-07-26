@@ -13,10 +13,11 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # common dependency of remaining modules
 add_subdirectory(ast)
 
+add_subdirectory(parse)
 add_subdirectory(exec)
 
 add_library(${PROJECT_NAME}.marlin INTERFACE)
-target_link_libraries(${PROJECT_NAME}.marlin INTERFACE ${PROJECT_NAME}.ast ${PROJECT_NAME}.exec)
+target_link_libraries(${PROJECT_NAME}.marlin INTERFACE ${PROJECT_NAME}.ast ${PROJECT_NAME}.parse ${PROJECT_NAME}.exec)
 
 if(NOT SUBPROJECT)
   add_executable(marlin_main main.cpp)
