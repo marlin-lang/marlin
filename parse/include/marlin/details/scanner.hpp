@@ -31,13 +31,22 @@ struct scanner {
         case '\r':
           [[fallthrough]];
         case '\t':
-          [[fallthrough]];
-        case '\n':
           advance();
+          break;
+        case '\n':
+          _current_loc = {_current_loc.line + 1, 1};
+          _current++;
           break;
         default:
           return;
       }
+    }
+  }
+
+  inline void consume_identifier() {
+    while (_current < _source.end() &&
+           (is_id_head(*_current) || is_digit(*_current))) {
+      advance();
     }
   }
 
@@ -56,15 +65,15 @@ struct scanner {
 
   inline char advance() {
     const auto ch{*_current};
-    if (ch == '\n') {
-      _current_loc = {_current_loc.line + 1, 1};
-    } else {
-      _current_loc.column += 1;
-    }
+    _current_loc.column++;
     _current++;
     return ch;
   }
 
+  inline bool is_id_head(char ch) {
+    return (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') || ch == '_' ||
+           ch == '$';
+  }
   inline bool is_digit(char ch) { return ch >= '0' && ch <= '9'; }
 
 };  // namespace marlin::parse

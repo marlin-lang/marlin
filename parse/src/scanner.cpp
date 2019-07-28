@@ -17,6 +17,8 @@ token scanner::scan() {
         return make_token(token_type::left_paren);
       case ')':
         return make_token(token_type::right_paren);
+      case ',':
+        return make_token(token_type::comma);
       case '+':
         return make_token(token_type::plus);
       case '-':
@@ -25,6 +27,15 @@ token scanner::scan() {
         return make_token(token_type::star);
       case '/':
         return make_token(token_type::slash);
+      case 'a' ... 'z':
+        [[fallthrough]];
+      case 'A' ... 'Z':
+        [[fallthrough]];
+      case '_':
+        [[fallthrough]];
+      case '$':
+        consume_identifier();
+        return make_token(token_type::identifier);
       case '0' ... '9':
         consume_number();
         return make_token(token_type::number);

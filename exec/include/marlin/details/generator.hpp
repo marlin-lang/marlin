@@ -12,12 +12,8 @@ namespace marlin::exec {
 struct generator {
   static inline std::string generate(code& c) {
     jsast::generator gen;
-    gen.write(jsast::ast::program{
-        {jsast::ast::expression_statement{jsast::ast::call_expression{
-             jsast::ast::identifier{"print"}, {get_node(c)}}},
-         jsast::ast::expression_statement{jsast::ast::call_expression{
-             jsast::ast::identifier{"print"},
-             {jsast::ast::string_literal("\n")}}}}});
+    gen.write(
+        jsast::ast::program{{jsast::ast::expression_statement{get_node(c)}}});
     return std::move(gen).str();
   }
 
@@ -52,6 +48,19 @@ struct generator {
     return jsast::ast::binary_expression{
         get_node(binary.left()), symbol_map[static_cast<uint8_t>(binary.op)],
         get_node(binary.right())};
+  }
+
+  static inline auto get_jsast(ast::call_expression& call) {
+    utils::move_vector<jsast::ast::node> arguments;
+    for (size_t i{0}; i < call.argument_count(); i++) {
+      arguments.emplace_back(get_node(call.argument(i)));
+    }
+    return jsast::ast::call_expression{get_node(call.callee()),
+                                       std::move(arguments)};
+  }
+
+  static inline auto get_jsast(ast::identifier& identifier) {
+    return jsast::ast::identifier{identifier.name};
   }
 
   static inline auto get_jsast(ast::number_literal& literal) {

@@ -24,6 +24,12 @@ struct interpreter::infix_builder {
     }
   }
 
+  inline void parse_call() {
+    if (test(precedence::call)) {
+      _node = ast::call_expression{std::move(_node), _interp.parse_arguments()};
+    }
+  }
+
  private:
   interpreter& _interp;
   code _node;

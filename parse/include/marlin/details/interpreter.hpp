@@ -13,32 +13,15 @@ struct interpreter {
         _current_loc{_sc.current_loc()},
         _current_token{_sc.scan()} {}
 
-  inline code parse() {
-    /*
-    while (true) {
-      printf("%2d '%.*s'\n", _current_token.type,
-             static_cast<int>(_current_token.end - _current_token.start),
-             &*_current_token.start);
-      if (_current_token.type == token_type::eof) break;
-      next();
-    }
-    printf("\n");
-
-    return marlin::ast::binary_expression{
-        marlin::ast::unary_expression{marlin::ast::unary_op::negative,
-                                      marlin::ast::number_literal{"10"}},
-        marlin::ast::binary_op::multiply, marlin::ast::number_literal{"7"}};
-    */
-    return parse_precedence(expression_base_precedence);
-  }
+  inline code parse() { return parse_precedence(expression_base_precedence); }
 
  private:
   enum class precedence : uint8_t {
     none,
-    term /* + - */
-    ,
+    term /* + - */,
     factor /* * / */,
     unary,
+    call /* . () [] */,
     primary
   };
 
@@ -57,6 +40,25 @@ struct interpreter {
   }
   code parse_precedence(uint8_t p);
 
+  inline utils::move_vector<code> parse_arguments() {
+    next();
+    utils::move_vector<code> args;
+    while (true) {
+      args.emplace_back(parse_precedence(expression_base_precedence));
+      switch (_current_token.type) {
+        case token_type::comma:
+          next();
+          break;
+        case token_type::right_paren:
+          next();
+          return std::move(args);
+        default:
+          // TODO: handle error!
+          break;
+      }
+    }
+  }
+
   inline code parse_group() {
     next();
     auto group{parse_precedence(expression_base_precedence)};
@@ -67,6 +69,12 @@ struct interpreter {
   inline code parse_unary(ast::unary_op op) {
     next();
     return ast::unary_expression{op, parse_precedence(precedence::unary)};
+  }
+
+  inline code parse_identifier() {
+    auto node = ast::identifier{{_current_token.start, _current_token.end}};
+    next();
+    return std::move(node);
   }
 
   inline code parse_number() {
