@@ -2,7 +2,6 @@
 #define marlin_parse_scanner_hpp
 
 #include <string>
-#include <utility>
 
 #include <marlin/ast.hpp>
 

@@ -10,7 +10,7 @@ namespace marlin::parse {
 struct interpreter {
   inline interpreter(scanner sc)
       : _sc{std::move(sc)},
-        _current_loc{_sc.current_loc()},
+        _previous_token_end{_sc.current_loc()},
         _current_token{_sc.scan()} {}
 
   inline code parse() { return parse_precedence(expression_base_precedence); }
@@ -30,10 +30,16 @@ struct interpreter {
   struct infix_builder;
 
   scanner _sc;
-  source_loc _current_loc;
+  source_loc _previous_token_end;
   token _current_token;
 
-  inline infix_builder make_builder(code node, uint8_t threshold_prec);
+  inline infix_builder make_builder(code node, uint8_t threshold_prec,
+                                    source_loc start);
+
+  inline code with_range(code c, source_loc start) {
+    c.get()._source_range = {start, _previous_token_end};
+    return std::move(c);
+  }
 
   inline code parse_precedence(precedence p) {
     return parse_precedence(static_cast<uint8_t>(p));
@@ -67,20 +73,24 @@ struct interpreter {
   }
 
   inline code parse_unary(ast::unary_op op) {
+    const auto start{_current_token.start_loc};
     next();
-    return ast::unary_expression{op, parse_precedence(precedence::unary)};
+    return with_range(
+        ast::unary_expression{op, parse_precedence(precedence::unary)}, start);
   }
 
   inline code parse_identifier() {
+    const auto start{_current_token.start_loc};
     auto node = ast::identifier{{_current_token.start, _current_token.end}};
     next();
-    return std::move(node);
+    return with_range(std::move(node), start);
   }
 
   inline code parse_number() {
+    const auto start{_current_token.start_loc};
     auto node = ast::number_literal{{_current_token.start, _current_token.end}};
     next();
-    return std::move(node);
+    return with_range(std::move(node), start);
   }
 
   inline void consume(token_type type) {
@@ -93,7 +103,7 @@ struct interpreter {
   }
 
   inline void next() {
-    _current_loc = _sc.current_loc();
+    _previous_token_end = _sc.current_loc();
     _current_token = _sc.scan();
   }
 };

@@ -5,8 +5,9 @@ namespace marlin::parse {
 token scanner::scan() {
   skip_whitespace();
 
-  const auto make_token = [this, start{_current}](token_type type) {
-    return token{type, start, _current};
+  const auto make_token = [this, start{_current},
+                           start_loc{_current_loc}](token_type type) {
+    return token{type, start, _current, start_loc};
   };
   if (_current >= _source.end()) {
     return make_token(token_type::eof);
@@ -39,7 +40,6 @@ token scanner::scan() {
       case '0' ... '9':
         consume_number();
         return make_token(token_type::number);
-
       default:
         // TODO: raise error
         return make_token(token_type::eof);

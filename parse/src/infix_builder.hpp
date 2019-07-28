@@ -6,10 +6,12 @@
 namespace marlin::parse {
 
 struct interpreter::infix_builder {
-  inline infix_builder(interpreter& interp, code node, uint8_t threshold_prec)
+  inline infix_builder(interpreter& interp, code node, uint8_t threshold_prec,
+                       source_loc start)
       : _interp{interp},
         _node{std::move(node)},
-        _threshold_prec{threshold_prec} {}
+        _threshold_prec{threshold_prec},
+        _start{start} {}
 
   inline bool success() { return _success_flag; }
 
@@ -18,15 +20,19 @@ struct interpreter::infix_builder {
   inline void parse_binary(ast::binary_op op, precedence p) {
     if (test(p)) {
       _interp.next();
-      _node = ast::binary_expression{
-          std::move(_node), op,
-          _interp.parse_precedence(static_cast<uint8_t>(p) + 1)};
+      _node = _interp.with_range(
+          ast::binary_expression{
+              std::move(_node), op,
+              _interp.parse_precedence(static_cast<uint8_t>(p) + 1)},
+          _start);
     }
   }
 
   inline void parse_call() {
     if (test(precedence::call)) {
-      _node = ast::call_expression{std::move(_node), _interp.parse_arguments()};
+      _node = _interp.with_range(
+          ast::call_expression{std::move(_node), _interp.parse_arguments()},
+          _start);
     }
   }
 
@@ -34,6 +40,7 @@ struct interpreter::infix_builder {
   interpreter& _interp;
   code _node;
   uint8_t _threshold_prec;
+  source_loc _start;
   bool _success_flag = true;
 
   inline bool test(precedence p) { return test(static_cast<uint8_t>(p)); }
@@ -46,8 +53,8 @@ struct interpreter::infix_builder {
 };
 
 inline interpreter::infix_builder interpreter::make_builder(
-    code node, uint8_t threshold_prec) {
-  return {*this, std::move(node), threshold_prec};
+    code node, uint8_t threshold_prec, source_loc start) {
+  return {*this, std::move(node), threshold_prec, start};
 }
 
 }  // namespace marlin::parse

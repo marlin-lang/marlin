@@ -7,6 +7,7 @@
 namespace marlin::parse {
 
 code interpreter::parse_precedence(uint8_t p) {
+  const auto start{_current_token.start_loc};
   code node{[this]() {
     switch (_current_token.type) {
       case token_type::left_paren:
@@ -25,7 +26,7 @@ code interpreter::parse_precedence(uint8_t p) {
     }
   }()};
 
-  auto builder{make_builder(std::move(node), p)};
+  auto builder{make_builder(std::move(node), p, start)};
   while (builder.success()) {
     switch (_current_token.type) {
       case token_type::left_paren:

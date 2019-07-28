@@ -8,6 +8,12 @@
 
 namespace marlin {
 
+namespace parse {
+
+struct interpreter;
+
+}  // namespace parse
+
 namespace exec {
 
 struct generator;
@@ -18,6 +24,7 @@ namespace ast {
 
 struct base {
   friend exec::generator;
+  friend parse::interpreter;
 
   explicit inline base(size_t children_count) {
     _children.reserve(children_count);
