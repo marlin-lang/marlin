@@ -33,6 +33,7 @@ struct type_map {
   X(binary_expression)    \
   X(call_expression)      \
   X(identifier)           \
+  X(bool_literal)         \
   X(number_literal)       \
   X(string_literal)
 

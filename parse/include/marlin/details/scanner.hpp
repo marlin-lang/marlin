@@ -50,76 +50,9 @@ struct scanner {
     return {type, start};
   }
 
-  inline token make_identifier_or_keyword_token() {
-    const auto start{_current_loc};
-    const auto start_iter{_current};
-    advance();
-    while (_current < _source.end() &&
-           (is_id_head(*_current) || is_digit(*_current))) {
-      advance();
-    }
-
-    // TODO:: check for keyword
-
-    return {token_type::identifier, start,
-            ast::identifier{{start_iter, _current}}};
-  }
-
-  inline token make_number_token() {
-    const auto start{_current_loc};
-    const auto start_iter{_current};
-    advance();
-    while (_current < _source.end() && is_digit(*_current)) {
-      advance();
-    }
-    if (_current + 1 < _source.end() && *_current == '.' &&
-        is_digit(*(_current + 1))) {
-      advance();
-      while (_current < _source.end() && is_digit(*_current)) {
-        advance();
-      }
-    }
-    return {token_type::number, start,
-            ast::number_literal{{start_iter, _current}}};
-  }
-
-  inline token make_string_token() {
-    const auto start{_current_loc};
-    const char delim{*_current};
-    std::string result;
-    advance();
-    bool success{false}, escaped{false};
-    while (_current < _source.end() && !success) {
-      if (escaped) {
-        escaped = false;
-        switch (*_current) {
-          case 'n':
-            result.push_back('\n');
-            break;
-          case 't':
-            result.push_back('\t');
-            break;
-          default:
-            result.push_back(*_current);
-            break;
-        }
-      } else if (*_current == '\\') {
-        escaped = true;
-      } else if (*_current == delim) {
-        success = true;
-      } else {
-        result.push_back(*_current);
-      }
-
-      if (*_current == '\n') {
-        consume_new_line();
-      } else {
-        advance();
-      }
-    }
-    // handling errors
-    return {token_type::string, start, ast::string_literal{std::move(result)}};
-  }
+  token make_identifier_or_keyword_token();
+  token make_number_token();
+  token make_string_token();
 
   inline void advance() {
     _current++;

@@ -18,6 +18,8 @@ enum class token_type {
   minus,
   star,
   slash,
+  kwd_true,
+  kwd_false,
   identifier,
   number,
   string,

@@ -86,6 +86,12 @@ struct identifier : expression {
       : expression{0}, name{std::move(_name)} {}
 };
 
+struct bool_literal : expression {
+  bool value;
+
+  explicit inline bool_literal(bool _value) : expression{0}, value{_value} {}
+};
+
 // TODO: ast/storage for different forms number literal
 // etc. decimal form, scientific form,  etc.
 struct number_literal : expression {

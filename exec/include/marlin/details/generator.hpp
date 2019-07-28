@@ -74,6 +74,10 @@ struct generator {
     return jsast::ast::identifier{identifier.name};
   }
 
+  static inline auto get_jsast(ast::bool_literal& literal) {
+    return jsast::ast::bool_literal{literal.value};
+  }
+
   static inline auto get_jsast(ast::number_literal& literal) {
     return jsast::ast::raw_literal{literal.number};
   }

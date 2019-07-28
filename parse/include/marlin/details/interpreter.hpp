@@ -89,6 +89,10 @@ struct interpreter {
         return parse_unary(ast::unary_op::positive);
       case token_type::minus:
         return parse_unary(ast::unary_op::negative);
+      case token_type::kwd_true:
+        return bool_literal(true);
+      case token_type::kwd_false:
+        return bool_literal(false);
       case token_type::identifier:
         [[fallthrough]];
       case token_type::number:
@@ -113,6 +117,12 @@ struct interpreter {
     auto node{std::move(_current_token).parsed()};
     next();
     return with_range(std::move(node), start);
+  }
+
+  inline code bool_literal(bool value) {
+    const auto start{_current_token.start};
+    next();
+    return with_range(ast::bool_literal{value}, start);
   }
 
   inline void consume(token_type type) {
