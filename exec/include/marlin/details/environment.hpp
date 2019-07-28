@@ -15,7 +15,8 @@ struct environment {
   template <typename callback_type>
   inline void register_print_callback(callback_type callback) {
     _ctx.root()["print"] =
-        _ctx.callable([&callback](auto ctx, auto, auto args, auto exception) {
+        _ctx.callable([callback{std::move(callback)}](auto ctx, auto, auto args,
+                                                      auto exception) {
           if (args.size() == 0) {
             *exception = ctx.error("To few arguments!");
           } else {
@@ -29,7 +30,6 @@ struct environment {
               }
             }
           }
-          return ctx.undefined();
         });
   }
 
