@@ -6,6 +6,19 @@
 
 namespace marlin::parse {
 
+code interpreter::parse_statement() {
+  const auto start{_current_token.start_loc};
+  switch (_current_token.type) {
+    // TODO: test for other statements
+    default: {
+      auto expression = parse_precedence(expression_base_precedence);
+      consume(token_type::semicolon);
+      return with_range(ast::expression_statement{std::move(expression)},
+                        start);
+    }
+  }
+};
+
 code interpreter::parse_precedence(uint8_t p) {
   const auto start{_current_token.start_loc};
   code node{[this]() {

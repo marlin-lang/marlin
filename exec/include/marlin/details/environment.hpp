@@ -9,13 +9,13 @@ namespace marlin::exec {
 
 struct environment {
   inline environment() {
-    register_print_callback([](auto string) {});
+    register_print_callback([](auto) {});
   }
 
   template <typename callback_type>
   inline void register_print_callback(callback_type callback) {
-    _ctx.root()["print"] = _ctx.callable(
-        [&callback](auto ctx, auto this_object, auto args, auto exception) {
+    _ctx.root()["print"] =
+        _ctx.callable([&callback](auto ctx, auto, auto args, auto exception) {
           if (args.size() == 0) {
             *exception = ctx.error("To few arguments!");
           } else if (args.size() == 1) {

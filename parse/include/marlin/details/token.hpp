@@ -10,7 +10,9 @@ namespace marlin::parse {
 enum class token_type {
   left_paren,
   right_paren,
+  dot,
   comma,
+  semicolon,
   plus,
   minus,
   star,

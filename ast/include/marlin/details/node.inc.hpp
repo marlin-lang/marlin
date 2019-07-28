@@ -26,11 +26,13 @@ struct type_map {
 
 }  // namespace utils
 
-#define ASTS(X)        \
-  X(unary_expression)  \
-  X(binary_expression) \
-  X(call_expression)   \
-  X(identifier)        \
+#define ASTS(X)           \
+  X(program)              \
+  X(expression_statement) \
+  X(unary_expression)     \
+  X(binary_expression)    \
+  X(call_expression)      \
+  X(identifier)           \
   X(number_literal)
 
 #define _LIST_TEMPLATE(NAME) NAME,

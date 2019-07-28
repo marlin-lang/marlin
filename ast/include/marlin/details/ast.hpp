@@ -7,6 +7,28 @@
 
 namespace marlin::ast {
 
+struct program : base {
+  inline size_t statement_count() const { return _children.size(); }
+  inline node& statement(size_t index) { return _children[index]; }
+  inline const node& statement(size_t index) const { return _children[index]; }
+
+  explicit inline program(utils::move_vector<node> _statements)
+      : base{std::move(_statements)} {}
+};
+
+struct statement : base {
+  using base::base;
+};
+
+struct expression_statement : statement {
+  inline node& expression() { return _children[0]; }
+  inline const node& expression() const { return _children[0]; }
+
+  explicit inline expression_statement(node _expression) : statement{1} {
+    _children.emplace_back(std::move(_expression));
+  }
+};
+
 struct expression : base {
   using base::base;
 };
@@ -43,7 +65,6 @@ struct call_expression : expression {
   inline const node& callee() const { return _children[0]; }
 
   inline size_t argument_count() const { return _children.size() - 1; }
-
   inline node& argument(size_t index) { return _children[index + 1]; }
   inline const node& argument(size_t index) const {
     return _children[index + 1];

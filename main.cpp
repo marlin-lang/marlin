@@ -9,7 +9,6 @@ int main(int argc, char* argv[]) {
     env.register_print_callback(
         [](const auto& string) { std::cout << string << "\n"; });
     auto code = marlin::parse::process_file(argv[1]);
-    const auto r{code.get().source_code_range()};
     env.execute(code, argv[1]);
     return 0;
   } else {

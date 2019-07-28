@@ -13,7 +13,14 @@ struct interpreter {
         _previous_token_end{_sc.current_loc()},
         _current_token{_sc.scan()} {}
 
-  inline code parse() { return parse_precedence(expression_base_precedence); }
+  inline code parse() {
+    const auto start{_current_token.start_loc};
+    utils::move_vector<code> statements;
+    while (_current_token.type != token_type::eof) {
+      statements.emplace_back(parse_statement());
+    }
+    return with_range(ast::program{std::move(statements)}, start);
+  }
 
  private:
   enum class precedence : uint8_t {
@@ -38,8 +45,10 @@ struct interpreter {
 
   inline code with_range(code c, source_loc start) {
     c.get()._source_range = {start, _previous_token_end};
-    return std::move(c);
+    return c;
   }
+
+  code parse_statement();
 
   inline code parse_precedence(precedence p) {
     return parse_precedence(static_cast<uint8_t>(p));
@@ -57,7 +66,7 @@ struct interpreter {
           break;
         case token_type::right_paren:
           next();
-          return std::move(args);
+          return args;
         default:
           // TODO: handle error!
           break;
@@ -69,7 +78,7 @@ struct interpreter {
     next();
     auto group{parse_precedence(expression_base_precedence)};
     consume(token_type::right_paren);
-    return std::move(group);
+    return group;
   }
 
   inline code parse_unary(ast::unary_op op) {

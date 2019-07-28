@@ -26,6 +26,8 @@ struct base {
   friend exec::generator;
   friend parse::interpreter;
 
+  explicit inline base(utils::move_vector<node> children)
+      : _children{std::move(children)} {}
   explicit inline base(size_t children_count) {
     _children.reserve(children_count);
   }
@@ -43,7 +45,7 @@ struct base {
     prev.get()._parent = nullptr;
     replacement.get()._parent = this;
     _children[target_index] = std::move(replacement);
-    return std::move(prev);
+    return prev;
   }
 
   inline node replace_child(node replacement, const node& target) {
@@ -53,17 +55,17 @@ struct base {
       }
     }
     /* should not occur! */
-    return std::move(replacement);
+    return replacement;
   }
 
-  inline node replace_child(node&& replacement, const base& target) {
+  inline node replace_child(node replacement, const base& target) {
     for (size_t i{0}; i < _children.size(); i++) {
       if (&_children[i].get() == &target) {
         return replace_child(std::move(replacement), i);
       }
     }
     /* should not occur! */
-    return std::move(replacement);
+    return replacement;
   }
 
   inline node replace(node replacement) {
@@ -71,7 +73,7 @@ struct base {
       return parent().replace_child(std::move(replacement), *this);
     } else {
       /* should not occur */
-      return std::move(replacement);
+      return replacement;
     }
   }
 

@@ -18,8 +18,17 @@ token scanner::scan() {
         return make_token(token_type::left_paren);
       case ')':
         return make_token(token_type::right_paren);
+      case '.':
+        if (_current < _source.end() && is_digit(*_current)) {
+          consume_number();
+          return make_token(token_type::number);
+        } else {
+          return make_token(token_type::dot);
+        }
       case ',':
         return make_token(token_type::comma);
+      case ';':
+        return make_token(token_type::semicolon);
       case '+':
         return make_token(token_type::plus);
       case '-':
@@ -28,21 +37,17 @@ token scanner::scan() {
         return make_token(token_type::star);
       case '/':
         return make_token(token_type::slash);
-      case 'a' ... 'z':
-        [[fallthrough]];
-      case 'A' ... 'Z':
-        [[fallthrough]];
-      case '_':
-        [[fallthrough]];
-      case '$':
-        consume_identifier();
-        return make_token(token_type::identifier);
-      case '0' ... '9':
-        consume_number();
-        return make_token(token_type::number);
       default:
-        // TODO: raise error
-        return make_token(token_type::eof);
+        if (is_id_head(ch)) {
+          consume_identifier();
+          return make_token(token_type::identifier);
+        } else if (is_digit(ch)) {
+          consume_number();
+          return make_token(token_type::number);
+        } else {
+          // TODO: raise error
+          return make_token(token_type::eof);
+        }
     }
   }
 }
