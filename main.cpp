@@ -7,7 +7,7 @@ int main(int argc, char* argv[]) {
   if (argc > 1) {
     marlin::exec::environment env;
     env.register_print_callback(
-        [](const auto& string) { std::cout << string << "\n"; });
+        [](const auto& string) { std::cout << string; });
     auto code = marlin::parse::process_file(argv[1]);
     env.execute(code, argv[1]);
     return 0;

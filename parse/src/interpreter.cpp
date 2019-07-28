@@ -7,7 +7,7 @@
 namespace marlin::parse {
 
 code interpreter::parse_statement() {
-  const auto start{_current_token.start_loc};
+  const auto start{_current_token.start};
   switch (_current_token.type) {
     // TODO: test for other statements
     default: {
@@ -20,24 +20,8 @@ code interpreter::parse_statement() {
 };
 
 code interpreter::parse_precedence(uint8_t p) {
-  const auto start{_current_token.start_loc};
-  code node{[this]() {
-    switch (_current_token.type) {
-      case token_type::left_paren:
-        return parse_group();
-      case token_type::plus:
-        return parse_unary(ast::unary_op::positive);
-      case token_type::minus:
-        return parse_unary(ast::unary_op::negative);
-      case token_type::identifier:
-        return parse_identifier();
-      case token_type::number:
-        return parse_number();
-      default:
-        // TODO: handle error
-        return code{ast::number_literal{"0"}};
-    }
-  }()};
+  const auto start{_current_token.start};
+  code node{parse_expression_head()};
 
   auto builder{make_builder(std::move(node), p, start)};
   while (builder.success()) {

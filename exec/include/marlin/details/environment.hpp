@@ -18,13 +18,16 @@ struct environment {
         _ctx.callable([&callback](auto ctx, auto, auto args, auto exception) {
           if (args.size() == 0) {
             *exception = ctx.error("To few arguments!");
-          } else if (args.size() == 1) {
-            std::string str = args[0].to_string();
-            if (ctx.ok()) {
-              callback(str);
-            }
           } else {
-            *exception = ctx.error("To many arguments!");
+            for (const auto& arg : args) {
+              std::string str = arg.to_string();
+              if (ctx.ok()) {
+                callback(std::move(str));
+              } else {
+                *exception = ctx.get_exception();
+                break;
+              }
+            }
           }
           return ctx.undefined();
         });

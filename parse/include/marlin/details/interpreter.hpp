@@ -14,7 +14,7 @@ struct interpreter {
         _current_token{_sc.scan()} {}
 
   inline code parse() {
-    const auto start{_current_token.start_loc};
+    const auto start{_current_token.start};
     utils::move_vector<code> statements;
     while (_current_token.type != token_type::eof) {
       statements.emplace_back(parse_statement());
@@ -81,23 +81,36 @@ struct interpreter {
     return group;
   }
 
+  inline code parse_expression_head() {
+    switch (_current_token.type) {
+      case token_type::left_paren:
+        return parse_group();
+      case token_type::plus:
+        return parse_unary(ast::unary_op::positive);
+      case token_type::minus:
+        return parse_unary(ast::unary_op::negative);
+      case token_type::identifier:
+        [[fallthrough]];
+      case token_type::number:
+        [[fallthrough]];
+      case token_type::string:
+        return parse_standalone_token();
+      default:
+        // TODO: handle error
+        return code{ast::number_literal{"0"}};
+    }
+  }
+
   inline code parse_unary(ast::unary_op op) {
-    const auto start{_current_token.start_loc};
+    const auto start{_current_token.start};
     next();
     return with_range(
         ast::unary_expression{op, parse_precedence(precedence::unary)}, start);
   }
 
-  inline code parse_identifier() {
-    const auto start{_current_token.start_loc};
-    auto node = ast::identifier{{_current_token.start, _current_token.end}};
-    next();
-    return with_range(std::move(node), start);
-  }
-
-  inline code parse_number() {
-    const auto start{_current_token.start_loc};
-    auto node = ast::number_literal{{_current_token.start, _current_token.end}};
+  inline code parse_standalone_token() {
+    const auto start{_current_token.start};
+    auto node{std::move(_current_token).parsed()};
     next();
     return with_range(std::move(node), start);
   }

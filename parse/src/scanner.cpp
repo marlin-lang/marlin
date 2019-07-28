@@ -5,48 +5,44 @@ namespace marlin::parse {
 token scanner::scan() {
   skip_whitespace();
 
-  const auto make_token = [this, start{_current},
-                           start_loc{_current_loc}](token_type type) {
-    return token{type, start, _current, start_loc};
-  };
   if (_current >= _source.end()) {
-    return make_token(token_type::eof);
+    return make_bare_token(token_type::eof);
   } else {
-    const auto ch{advance()};
-    switch (ch) {
+    switch (*_current) {
       case '(':
-        return make_token(token_type::left_paren);
+        return make_bare_token(token_type::left_paren);
       case ')':
-        return make_token(token_type::right_paren);
+        return make_bare_token(token_type::right_paren);
       case '.':
-        if (_current < _source.end() && is_digit(*_current)) {
-          consume_number();
-          return make_token(token_type::number);
+        if (_current + 1 < _source.end() && is_digit(*(_current + 1))) {
+          return make_number_token();
         } else {
-          return make_token(token_type::dot);
+          return make_bare_token(token_type::dot);
         }
       case ',':
-        return make_token(token_type::comma);
+        return make_bare_token(token_type::comma);
       case ';':
-        return make_token(token_type::semicolon);
+        return make_bare_token(token_type::semicolon);
       case '+':
-        return make_token(token_type::plus);
+        return make_bare_token(token_type::plus);
       case '-':
-        return make_token(token_type::minus);
+        return make_bare_token(token_type::minus);
       case '*':
-        return make_token(token_type::star);
+        return make_bare_token(token_type::star);
       case '/':
-        return make_token(token_type::slash);
+        return make_bare_token(token_type::slash);
+      case '\'':
+        [[fallthrough]];
+      case '"':
+        return make_string_token();
       default:
-        if (is_id_head(ch)) {
-          consume_identifier();
-          return make_token(token_type::identifier);
-        } else if (is_digit(ch)) {
-          consume_number();
-          return make_token(token_type::number);
+        if (is_id_head(*_current)) {
+          return make_identifier_or_keyword_token();
+        } else if (is_digit(*_current)) {
+          return make_number_token();
         } else {
           // TODO: raise error
-          return make_token(token_type::eof);
+          return make_bare_token(token_type::eof);
         }
     }
   }

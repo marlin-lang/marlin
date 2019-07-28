@@ -1,6 +1,7 @@
 #ifndef marlin_parse_token_hpp
 #define marlin_parse_token_hpp
 
+#include <optional>
 #include <string>
 
 #include <marlin/ast.hpp>
@@ -19,18 +20,23 @@ enum class token_type {
   slash,
   identifier,
   number,
+  string,
   eof
 };
 
 struct token {
   token_type type;
-  std::string::const_iterator start;
-  std::string::const_iterator end;
-  source_loc start_loc;
+  source_loc start;
 
-  inline token(token_type _type, std::string::const_iterator _start,
-               std::string::const_iterator _end, source_loc _start_loc) noexcept
-      : type{_type}, start{_start}, end{_end}, start_loc{_start_loc} {}
+  inline token(token_type _type, source_loc _start,
+               std::optional<code> _node = std::nullopt) noexcept
+      : type{_type}, start{_start}, _parsed_node{std::move(_node)} {}
+
+  inline code parsed() && { return std::move(_parsed_node).value(); }
+
+ private:
+  // filled when type is identifier, number
+  std::optional<code> _parsed_node;
 };
 
 }  // namespace marlin::parse

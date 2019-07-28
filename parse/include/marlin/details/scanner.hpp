@@ -7,6 +7,9 @@
 
 #include "token.hpp"
 
+// Test:
+#include <iostream>
+
 namespace marlin::parse {
 
 struct scanner {
@@ -33,8 +36,7 @@ struct scanner {
           advance();
           break;
         case '\n':
-          _current_loc = {_current_loc.line + 1, 1};
-          _current++;
+          consume_new_line();
           break;
         default:
           return;
@@ -42,14 +44,31 @@ struct scanner {
     }
   }
 
-  inline void consume_identifier() {
+  inline token make_bare_token(token_type type) {
+    const auto start{_current_loc};
+    advance();
+    return {type, start};
+  }
+
+  inline token make_identifier_or_keyword_token() {
+    const auto start{_current_loc};
+    const auto start_iter{_current};
+    advance();
     while (_current < _source.end() &&
            (is_id_head(*_current) || is_digit(*_current))) {
       advance();
     }
+
+    // TODO:: check for keyword
+
+    return {token_type::identifier, start,
+            ast::identifier{{start_iter, _current}}};
   }
 
-  inline void consume_number() {
+  inline token make_number_token() {
+    const auto start{_current_loc};
+    const auto start_iter{_current};
+    advance();
     while (_current < _source.end() && is_digit(*_current)) {
       advance();
     }
@@ -60,13 +79,56 @@ struct scanner {
         advance();
       }
     }
+    return {token_type::number, start,
+            ast::number_literal{{start_iter, _current}}};
   }
 
-  inline char advance() {
-    const auto ch{*_current};
-    _current_loc.column++;
+  inline token make_string_token() {
+    const auto start{_current_loc};
+    const char delim{*_current};
+    std::string result;
+    advance();
+    bool success{false}, escaped{false};
+    while (_current < _source.end() && !success) {
+      if (escaped) {
+        escaped = false;
+        switch (*_current) {
+          case 'n':
+            result.push_back('\n');
+            break;
+          case 't':
+            result.push_back('\t');
+            break;
+          default:
+            result.push_back(*_current);
+            break;
+        }
+      } else if (*_current == '\\') {
+        escaped = true;
+      } else if (*_current == delim) {
+        success = true;
+      } else {
+        result.push_back(*_current);
+      }
+
+      if (*_current == '\n') {
+        consume_new_line();
+      } else {
+        advance();
+      }
+    }
+    // handling errors
+    return {token_type::string, start, ast::string_literal{std::move(result)}};
+  }
+
+  inline void advance() {
     _current++;
-    return ch;
+    _current_loc.column++;
+  }
+
+  inline void consume_new_line() {
+    _current++;
+    _current_loc = {_current_loc.line + 1, 1};
   }
 
   inline bool is_id_head(char ch) {

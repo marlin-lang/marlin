@@ -78,6 +78,10 @@ struct generator {
     return jsast::ast::raw_literal{literal.number};
   }
 
+  static inline auto get_jsast(ast::string_literal& literal) {
+    return jsast::ast::string_literal{literal.string};
+  }
+
 };  // namespace marlin::exec
 
 }  // namespace marlin::exec

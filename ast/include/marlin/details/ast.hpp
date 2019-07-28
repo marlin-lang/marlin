@@ -95,6 +95,13 @@ struct number_literal : expression {
       : expression{0}, number{std::move(_number)} {}
 };
 
+struct string_literal : expression {
+  std::string string;
+
+  explicit inline string_literal(std::string _string)
+      : expression{0}, string{std::move(_string)} {}
+};
+
 }  // namespace marlin::ast
 
 #endif  // marlin_ast_ast_hpp
