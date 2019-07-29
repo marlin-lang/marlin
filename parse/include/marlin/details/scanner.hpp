@@ -16,7 +16,10 @@ struct scanner {
   inline scanner(const std::string& source)
       : _source{source}, _current{_source.begin()}, _current_loc{1, 1} {}
 
-  inline source_loc current_loc() { return _current_loc; }
+  inline source_loc current_loc() const noexcept { return _current_loc; }
+  inline std::string::const_iterator current_ptr() const noexcept {
+    return _current;
+  }
 
   token scan();
 
@@ -46,8 +49,9 @@ struct scanner {
 
   inline token make_bare_token(token_type type) {
     const auto start{_current_loc};
+    const auto start_iter{_current};
     advance();
-    return {type, start};
+    return {type, start, start_iter};
   }
 
   token make_identifier_or_keyword_token();

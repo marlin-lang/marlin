@@ -28,6 +28,13 @@ struct generator {
             [&node](source_range range) { node._js_range = range; }};
   }
 
+  // Unused return value type, specified so that the code compiles
+  static inline jsast::ast::empty_statement get_jsast[[noreturn]](
+      ast::erroneous_line&) {
+    // TODO: throw actual error
+    throw "error!";
+  }
+
   static inline auto get_jsast(ast::program& program) {
     utils::move_vector<jsast::ast::node> statements;
     for (size_t i{0}; i < program.statement_count(); i++) {

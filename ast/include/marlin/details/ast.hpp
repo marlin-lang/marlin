@@ -7,6 +7,13 @@
 
 namespace marlin::ast {
 
+struct erroneous_line : base {
+  std::string line;
+
+  explicit inline erroneous_line(std::string _line)
+      : base{0}, line{std::move(_line)} {}
+};
+
 struct program : base {
   inline size_t statement_count() const { return _children.size(); }
   inline node& statement(size_t index) { return _children[index]; }

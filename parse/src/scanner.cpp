@@ -64,9 +64,9 @@ token scanner::make_identifier_or_keyword_token() {
                             token_type keyword) {
     if (end_iter == start_iter + offset + str.size() &&
         memcmp(&*(start_iter + offset), str.data(), str.size()) == 0) {
-      return token{keyword, start};
+      return token{keyword, start, start_iter};
     } else {
-      return token{token_type::identifier, start,
+      return token{token_type::identifier, start, start_iter,
                    ast::identifier{{start_iter, end_iter}}};
     }
   };
@@ -79,7 +79,7 @@ token scanner::make_identifier_or_keyword_token() {
         return test_for(1, "rue", token_type::kwd_true);
     }
   }
-  return {token_type::identifier, start,
+  return {token_type::identifier, start, start_iter,
           ast::identifier{{start_iter, _current}}};
 }
 
@@ -97,12 +97,13 @@ token scanner::make_number_token() {
       advance();
     }
   }
-  return {token_type::number, start,
+  return {token_type::number, start, start_iter,
           ast::number_literal{{start_iter, _current}}};
 }
 
 token scanner::make_string_token() {
   const auto start{_current_loc};
+  const auto start_iter{_current};
   const char delim{*_current};
   std::string result;
   advance();
@@ -136,7 +137,8 @@ token scanner::make_string_token() {
     }
   }
   // handling errors
-  return {token_type::string, start, ast::string_literal{std::move(result)}};
+  return {token_type::string, start, start_iter,
+          ast::string_literal{std::move(result)}};
 }
 
 }  // namespace marlin::parse

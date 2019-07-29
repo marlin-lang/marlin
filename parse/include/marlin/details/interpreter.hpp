@@ -1,9 +1,15 @@
 #ifndef marlin_parse_interpreter_hpp
 #define marlin_parse_interpreter_hpp
 
+#include <utility>
+
 #include <marlin/ast.hpp>
 
+#include "errors.hpp"
 #include "scanner.hpp"
+
+// Testing
+#include <iostream>
 
 namespace marlin::parse {
 
@@ -13,13 +19,13 @@ struct interpreter {
         _previous_token_end{_sc.current_loc()},
         _current_token{_sc.scan()} {}
 
-  inline code parse() {
+  inline std::pair<code, std::vector<error>> parse() {
     const auto start{_current_token.start};
-    utils::move_vector<code> statements;
-    while (_current_token.type != token_type::eof) {
-      statements.emplace_back(parse_statement());
-    }
-    return with_range(ast::program{std::move(statements)}, start);
+    std::pair<code, std::vector<error>> result{
+        with_range(ast::program{parse_statements(token_type::eof)}, start),
+        std::move(_errors)};
+    _errors = {};
+    return result;
   }
 
  private:
@@ -39,6 +45,7 @@ struct interpreter {
   scanner _sc;
   source_loc _previous_token_end;
   token _current_token;
+  std::vector<error> _errors;
 
   inline infix_builder make_builder(code node, uint8_t threshold_prec,
                                     source_loc start);
@@ -46,6 +53,50 @@ struct interpreter {
   inline code with_range(code c, source_loc start) {
     c.get()._source_range = {start, _previous_token_end};
     return c;
+  }
+
+  inline void synchronize() {
+    while (true) {
+      switch (_current_token.type) {
+        case token_type::semicolon:
+          next();
+          [[fallthrough]];
+        case token_type::eof:
+          return;
+
+        default:
+          next();
+          break;
+      }
+    }
+  }
+  inline void synchronize_and_throw[[noreturn]](error e) {
+    synchronize();
+    throw e;
+  }
+
+  inline code parse_error(error e, source_loc start,
+                          std::string::const_iterator start_ptr) {
+    code node = ast::erroneous_line{{start_ptr, _sc.current_ptr()}};
+    e.set_node(node.get());
+    _errors.push_back(std::move(e));
+    return with_range(std::move(node), start);
+  }
+
+  inline utils::move_vector<code> parse_statements(token_type terminator) {
+    utils::move_vector<code> statements;
+    while (_current_token.type != token_type::eof &&
+           _current_token.type != terminator) {
+      statements.emplace_back(parse_statement());
+    }
+    if (_current_token.type == token_type::eof &&
+        terminator != token_type::eof) {
+      throw error{std::string{"Unexpected "} + name_for(token_type::eof) +
+                      ", expecting " + name_for(terminator) + ".",
+                  _current_token.start};
+    } else {
+      return statements;
+    }
   }
 
   code parse_statement();
@@ -68,8 +119,9 @@ struct interpreter {
           next();
           return args;
         default:
-          // TODO: handle error!
-          break;
+          synchronize_and_throw(
+              {std::string{"Unexpected "} + name_for(_current_token.type) + ".",
+               _current_token.start});
       }
     }
   }
@@ -100,8 +152,10 @@ struct interpreter {
       case token_type::string:
         return parse_standalone_token();
       default:
-        // TODO: handle error
-        return code{ast::number_literal{"0"}};
+        synchronize_and_throw({std::string{"Unexpected "} +
+                                   name_for(_current_token.type) +
+                                   ", expecting expression.",
+                               _current_token.start});
     }
   }
 
@@ -114,9 +168,15 @@ struct interpreter {
 
   inline code parse_standalone_token() {
     const auto start{_current_token.start};
-    auto node{std::move(_current_token).parsed()};
-    next();
-    return with_range(std::move(node), start);
+    if (_current_token.parsed_node.has_value()) {
+      auto node{std::move(_current_token.parsed_node).value()};
+      next();
+      return with_range(std::move(node), start);
+    } else {
+      synchronize_and_throw({std::string{"Internal error when parsing "} +
+                                 name_for(_current_token.type) + ".",
+                             _current_token.start});
+    }
   }
 
   inline code bool_literal(bool value) {
@@ -129,8 +189,13 @@ struct interpreter {
     if (_current_token.type == type) {
       next();
     } else {
-      // TODO: report error
-      next();
+      error e{std::string{"Expecting "} + name_for(type) + ".",
+              _current_token.start};
+      // TODO: test for right_brace when implementing blocks
+      if (type != token_type::semicolon) {
+        synchronize();
+      }
+      throw e;
     }
   }
 
