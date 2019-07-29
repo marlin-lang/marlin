@@ -15,8 +15,8 @@ code interpreter::parse_statement() {
       default: {
         auto expression = parse_precedence(expression_base_precedence);
         consume(token_type::semicolon);
-        return with_range(ast::expression_statement{std::move(expression)},
-                          start);
+        return finalize_node(ast::expression_statement{std::move(expression)},
+                             start);
       }
     }
   } catch (error e) {

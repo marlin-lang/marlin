@@ -20,7 +20,7 @@ struct interpreter::infix_builder {
   inline void parse_binary(ast::binary_op op, precedence p) {
     if (test(p)) {
       _interp.next();
-      _node = _interp.with_range(
+      _node = _interp.finalize_node(
           ast::binary_expression{
               std::move(_node), op,
               _interp.parse_precedence(static_cast<uint8_t>(p) + 1)},
@@ -30,7 +30,7 @@ struct interpreter::infix_builder {
 
   inline void parse_call() {
     if (test(precedence::call)) {
-      _node = _interp.with_range(
+      _node = _interp.finalize_node(
           ast::call_expression{std::move(_node), _interp.parse_arguments()},
           _start);
     }

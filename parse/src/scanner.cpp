@@ -43,8 +43,7 @@ token scanner::scan() {
         } else if (is_digit(*_current)) {
           return make_number_token();
         } else {
-          // TODO: raise error
-          return make_bare_token(token_type::eof);
+          return make_bare_token(token_type::error);
         }
     }
   }

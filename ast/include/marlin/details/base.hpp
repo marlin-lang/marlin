@@ -14,6 +14,12 @@ struct interpreter;
 
 }  // namespace parse
 
+namespace lint {
+
+struct linter;
+
+}  // namespace lint
+
 namespace exec {
 
 struct generator;
@@ -23,8 +29,9 @@ struct generator;
 namespace ast {
 
 struct base {
-  friend exec::generator;
   friend parse::interpreter;
+  friend lint::linter;
+  friend exec::generator;
 
   explicit inline base(utils::move_vector<node> children)
       : _children{std::move(children)} {}
@@ -43,6 +50,17 @@ struct base {
     return _parent != nullptr;
   }
   [[nodiscard]] inline base &parent() { return *_parent; }
+
+  [[nodiscard]] inline size_t children_count() const noexcept {
+    return _children.size();
+  }
+  [[nodiscard]] inline node &child(size_t index) { return _children[index]; }
+  [[nodiscard]] inline const node &child(size_t index) const {
+    return _children[index];
+  }
+  inline void push_child(node &&child) {
+    _children.emplace_back(std::move(child));
+  }
 
   inline node replace_child(node replacement, size_t target_index) {
     auto prev{std::move(_children[target_index])};
@@ -81,10 +99,8 @@ struct base {
     }
   }
 
- protected:
-  utils::move_vector<node> _children;
-
  private:
+  utils::move_vector<node> _children;
   base *_parent{nullptr};
 
   source_range _source_range;

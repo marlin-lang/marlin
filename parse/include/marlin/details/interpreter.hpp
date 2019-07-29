@@ -19,7 +19,7 @@ struct interpreter {
   inline std::pair<code, std::vector<error>> parse() {
     const auto start{_current_token.start};
     std::pair<code, std::vector<error>> result{
-        with_range(ast::program{parse_statements(token_type::eof)}, start),
+        finalize_node(ast::program{parse_statements(token_type::eof)}, start),
         std::move(_errors)};
     _errors = {};
     return result;
@@ -47,8 +47,11 @@ struct interpreter {
   inline infix_builder make_builder(code node, uint8_t threshold_prec,
                                     source_loc start);
 
-  inline code with_range(code c, source_loc start) {
+  inline code finalize_node(code c, source_loc start) {
     c->_source_range = {start, _previous_token_end};
+    for (size_t i{0}; i < c->children_count(); i++) {
+      c->child(i)->_parent = &c.get();
+    }
     return c;
   }
 
@@ -74,10 +77,11 @@ struct interpreter {
 
   inline code parse_error(error e, source_loc start,
                           std::string::const_iterator start_ptr) {
-    code node = ast::erroneous_line{{start_ptr, _sc.current_ptr()}};
+    code node = finalize_node(
+        ast::erroneous_line{{start_ptr, _sc.current_ptr()}}, start);
     e.set_node(node.get());
     _errors.push_back(std::move(e));
-    return with_range(std::move(node), start);
+    return node;
   }
 
   inline utils::move_vector<code> parse_statements(token_type terminator) {
@@ -159,7 +163,7 @@ struct interpreter {
   inline code parse_unary(ast::unary_op op) {
     const auto start{_current_token.start};
     next();
-    return with_range(
+    return finalize_node(
         ast::unary_expression{op, parse_precedence(precedence::unary)}, start);
   }
 
@@ -168,7 +172,7 @@ struct interpreter {
     if (_current_token.parsed_node.has_value()) {
       auto node{std::move(_current_token.parsed_node).value()};
       next();
-      return with_range(std::move(node), start);
+      return finalize_node(std::move(node), start);
     } else {
       synchronize_and_throw({std::string{"Internal error when parsing "} +
                                  name_for(_current_token.type) + ".",
@@ -179,7 +183,7 @@ struct interpreter {
   inline code bool_literal(bool value) {
     const auto start{_current_token.start};
     next();
-    return with_range(ast::bool_literal{value}, start);
+    return finalize_node(ast::bool_literal{value}, start);
   }
 
   inline void consume(token_type type) {

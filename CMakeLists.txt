@@ -15,11 +15,14 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 add_subdirectory(ast)
 
 add_subdirectory(parse)
+add_subdirectory(lint)
 add_subdirectory(exec)
 
 add_library(${PROJECT_NAME}.marlin INTERFACE)
 target_link_libraries(${PROJECT_NAME}.marlin
-                      INTERFACE ${PROJECT_NAME}.ast ${PROJECT_NAME}.parse
+                      INTERFACE ${PROJECT_NAME}.ast
+                                ${PROJECT_NAME}.parse
+                                ${PROJECT_NAME}.lint
                                 ${PROJECT_NAME}.exec)
 
 if(NOT SUBPROJECT)
