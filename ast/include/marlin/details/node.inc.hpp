@@ -26,6 +26,8 @@ struct type_map {
 
 }  // namespace utils
 
+inline node::node() : node{ast::program{{}}} {}
+
 #define ASTS(X)           \
   X(erroneous_line)       \
   X(program)              \

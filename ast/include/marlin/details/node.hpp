@@ -10,6 +10,9 @@ namespace ast {
 struct base;
 
 struct node {
+  // Allows default construction of node
+  inline node();
+
   template <typename node_type,
             typename = std::enable_if_t<std::is_base_of_v<base, node_type>>>
   inline node(node_type &&n)
