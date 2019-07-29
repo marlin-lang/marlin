@@ -8,9 +8,6 @@
 #include "errors.hpp"
 #include "scanner.hpp"
 
-// Testing
-#include <iostream>
-
 namespace marlin::parse {
 
 struct interpreter {

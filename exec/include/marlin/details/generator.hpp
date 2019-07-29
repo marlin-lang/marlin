@@ -7,6 +7,8 @@
 
 #include <marlin/ast.hpp>
 
+#include "errors.hpp"
+
 namespace marlin::exec {
 
 struct generator {
@@ -30,9 +32,8 @@ struct generator {
 
   // Unused return value type, specified so that the code compiles
   static inline jsast::ast::empty_statement get_jsast[[noreturn]](
-      ast::erroneous_line&) {
-    // TODO: throw actual error
-    throw "error!";
+      ast::erroneous_line& node) {
+    throw generation_error{"Unparsed chunk encountered!", node};
   }
 
   static inline auto get_jsast(ast::program& program) {

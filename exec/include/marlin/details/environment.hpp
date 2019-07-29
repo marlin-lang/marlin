@@ -1,8 +1,11 @@
 #ifndef marlin_exec_environment_hpp
 #define marlin_exec_environment_hpp
 
+#include <optional>
+
 #include <jsc/jsc.hpp>
 
+#include "errors.hpp"
 #include "generator.hpp"
 
 namespace marlin::exec {
@@ -41,7 +44,12 @@ struct environment {
     const auto javascript = generator::generate(c);
     _ctx.clear_exception();
     _ctx.eval_script(javascript, source_url);
-    // TODO: Check runtime errors
+    if (!_ctx.ok()) {
+      // TODO: Locate runtime errors
+      // std::string
+      //     stack{_ctx.get_exception().to_object()["stack"].get().to_string()};
+      throw runtime_error{_ctx.get_exception().to_string()};
+    }
   }
 
  private:
