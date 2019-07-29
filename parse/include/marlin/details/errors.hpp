@@ -10,7 +10,9 @@ namespace marlin::parse {
 struct filesystem_error : std::exception {
   inline filesystem_error(std::string message) : _message{message} {}
 
-  const char* what() const noexcept override { return _message.data(); }
+  [[nodiscard]] const char* what() const noexcept override {
+    return _message.data();
+  }
 
  private:
   std::string _message;
@@ -22,10 +24,12 @@ struct error : std::exception {
   inline error(std::string message, source_loc loc)
       : _message{message}, _loc{loc} {}
 
-  const char* what() const noexcept override { return _message.data(); }
+  [[nodiscard]] const char* what() const noexcept override {
+    return _message.data();
+  }
 
-  inline source_loc loc() const noexcept { return _loc; }
-  inline ast::base& node() noexcept { return *_node; }
+  [[nodiscard]] inline source_loc loc() const noexcept { return _loc; }
+  [[nodiscard]] inline ast::base& node() noexcept { return *_node; }
 
  private:
   std::string _message;

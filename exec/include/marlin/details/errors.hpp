@@ -13,9 +13,11 @@ struct generation_error : std::exception {
   inline generation_error(std::string message, ast::base& node)
       : _message{std::move(message)}, _node{&node} {}
 
-  const char* what() const noexcept override { return _message.data(); }
+  [[nodiscard]] const char* what() const noexcept override {
+    return _message.data();
+  }
 
-  inline ast::base& node() noexcept { return *_node; }
+  [[nodiscard]] inline ast::base& node() const noexcept { return *_node; }
 
  private:
   std::string _message;
@@ -25,7 +27,9 @@ struct generation_error : std::exception {
 struct runtime_error : std::exception {
   inline runtime_error(std::string message) : _message{std::move(message)} {}
 
-  const char* what() const noexcept override { return _message.data(); }
+  [[nodiscard]] const char* what() const noexcept override {
+    return _message.data();
+  }
 
  private:
   std::string _message;

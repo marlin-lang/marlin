@@ -61,5 +61,7 @@
     "typeinfo": "cpp",
     "unordered_map": "cpp",
     "vector": "cpp"
-  }
+  },
+  "clang-format.style": "file",
+  "C_Cpp.formatting": "Disabled"
 }

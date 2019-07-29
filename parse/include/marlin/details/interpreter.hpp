@@ -48,7 +48,7 @@ struct interpreter {
                                     source_loc start);
 
   inline code with_range(code c, source_loc start) {
-    c.get()._source_range = {start, _previous_token_end};
+    c->_source_range = {start, _previous_token_end};
     return c;
   }
 
@@ -67,7 +67,7 @@ struct interpreter {
       }
     }
   }
-  inline void synchronize_and_throw[[noreturn]](error e) {
+  [[noreturn]] inline void synchronize_and_throw(error e) {
     synchronize();
     throw e;
   }

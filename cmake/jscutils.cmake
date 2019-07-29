@@ -4,7 +4,7 @@ fetchcontent_declare(jscutils
                      GIT_REPOSITORY
                      https://github.com/beanandbean/jscutils.git
                      GIT_TAG
-                     7de6368755fffffa6e2c239cd5149cd25573503f)
+                     991ab78d8655295710ea8d1e31c25ca1220437ce)
 
 fetchcontent_getproperties(jscutils)
 if(NOT jscutils_POPULATED)

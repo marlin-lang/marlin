@@ -16,8 +16,11 @@ struct scanner {
   inline scanner(const std::string& source)
       : _source{source}, _current{_source.begin()}, _current_loc{1, 1} {}
 
-  inline source_loc current_loc() const noexcept { return _current_loc; }
-  inline std::string::const_iterator current_ptr() const noexcept {
+  [[nodiscard]] inline source_loc current_loc() const noexcept {
+    return _current_loc;
+  }
+  [[nodiscard]] inline std::string::const_iterator current_ptr() const
+      noexcept {
     return _current;
   }
 
@@ -47,16 +50,16 @@ struct scanner {
     }
   }
 
-  inline token make_bare_token(token_type type) {
+  [[nodiscard]] inline token make_bare_token(token_type type) {
     const auto start{_current_loc};
     const auto start_iter{_current};
     advance();
     return {type, start, start_iter};
   }
 
-  token make_identifier_or_keyword_token();
-  token make_number_token();
-  token make_string_token();
+  [[nodiscard]] token make_identifier_or_keyword_token();
+  [[nodiscard]] token make_number_token();
+  [[nodiscard]] token make_string_token();
 
   inline void advance() {
     _current++;
@@ -68,11 +71,11 @@ struct scanner {
     _current_loc = {_current_loc.line + 1, 1};
   }
 
-  inline bool is_id_head(char ch) {
+  [[nodiscard]] inline bool is_id_head(char ch) {
     return (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') || ch == '_' ||
            ch == '$';
   }
-  inline bool is_digit(char ch) { return ch >= '0' && ch <= '9'; }
+  [[nodiscard]] inline bool is_digit(char ch) { return ch >= '0' && ch <= '9'; }
 
 };  // namespace marlin::parse
 

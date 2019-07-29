@@ -1,6 +1,7 @@
 #ifndef marlin_parse_token_hpp
 #define marlin_parse_token_hpp
 
+#include <array>
 #include <optional>
 #include <string>
 
@@ -26,7 +27,7 @@ enum class token_type : uint8_t {
   eof
 };
 
-static constexpr const char* _token_type_name_map[]{
+static constexpr std::array _token_type_name_map{
     "\"(\"" /* left_paren */,
     "\")\"" /* right_paren */,
     "\".\"" /* dot */,

@@ -15,9 +15,15 @@ struct erroneous_line : base {
 };
 
 struct program : base {
-  inline size_t statement_count() const { return _children.size(); }
-  inline node& statement(size_t index) { return _children[index]; }
-  inline const node& statement(size_t index) const { return _children[index]; }
+  [[nodiscard]] inline size_t statement_count() const {
+    return _children.size();
+  }
+  [[nodiscard]] inline node &statement(size_t index) {
+    return _children[index];
+  }
+  [[nodiscard]] inline const node &statement(size_t index) const {
+    return _children[index];
+  }
 
   explicit inline program(utils::move_vector<node> _statements)
       : base{std::move(_statements)} {}
@@ -28,8 +34,8 @@ struct statement : base {
 };
 
 struct expression_statement : statement {
-  inline node& expression() { return _children[0]; }
-  inline const node& expression() const { return _children[0]; }
+  [[nodiscard]] inline node &expression() { return _children[0]; }
+  [[nodiscard]] inline const node &expression() const { return _children[0]; }
 
   explicit inline expression_statement(node _expression) : statement{1} {
     _children.emplace_back(std::move(_expression));
@@ -43,8 +49,8 @@ struct expression : base {
 struct unary_expression : expression {
   unary_op op;
 
-  inline node& argument() { return _children[0]; }
-  inline const node& argument() const { return _children[0]; }
+  [[nodiscard]] inline node &argument() { return _children[0]; }
+  [[nodiscard]] inline const node &argument() const { return _children[0]; }
 
   explicit inline unary_expression(unary_op _op, node _argument)
       : expression{1}, op{_op} {
@@ -55,10 +61,10 @@ struct unary_expression : expression {
 struct binary_expression : expression {
   binary_op op;
 
-  inline node& left() { return _children[0]; }
-  inline const node& left() const { return _children[0]; }
-  inline node& right() { return _children[1]; }
-  inline const node& right() const { return _children[1]; }
+  [[nodiscard]] inline node &left() { return _children[0]; }
+  [[nodiscard]] inline const node &left() const { return _children[0]; }
+  [[nodiscard]] inline node &right() { return _children[1]; }
+  [[nodiscard]] inline const node &right() const { return _children[1]; }
 
   explicit inline binary_expression(node _left, binary_op _op, node _right)
       : expression{2}, op{_op} {
@@ -68,12 +74,16 @@ struct binary_expression : expression {
 };
 
 struct call_expression : expression {
-  inline node& callee() { return _children[0]; }
-  inline const node& callee() const { return _children[0]; }
+  [[nodiscard]] inline node &callee() { return _children[0]; }
+  [[nodiscard]] inline const node &callee() const { return _children[0]; }
 
-  inline size_t argument_count() const { return _children.size() - 1; }
-  inline node& argument(size_t index) { return _children[index + 1]; }
-  inline const node& argument(size_t index) const {
+  [[nodiscard]] inline size_t argument_count() const {
+    return _children.size() - 1;
+  }
+  [[nodiscard]] inline node &argument(size_t index) {
+    return _children[index + 1];
+  }
+  [[nodiscard]] inline const node &argument(size_t index) const {
     return _children[index + 1];
   }
 
