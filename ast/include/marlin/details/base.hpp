@@ -42,9 +42,6 @@ struct base {
   [[nodiscard]] inline source_range source_code_range() const noexcept {
     return _source_range;
   }
-  [[nodiscard]] inline source_range js_range() const noexcept {
-    return _js_range;
-  }
 
   [[nodiscard]] inline bool has_parent() const noexcept {
     return _parent != nullptr;

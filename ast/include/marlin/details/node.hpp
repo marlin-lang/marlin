@@ -61,6 +61,19 @@ struct node {
   template <typename return_type, typename callable_type>
   inline return_type apply(callable_type callable) const;
 
+  template <typename super_type>
+  [[nodiscard]] inline bool inherits() const {
+    return apply<bool>([](const auto &n) {
+      return std::is_base_of_v<super_type, std::decay_t<decltype(n)>>;
+    });
+  }
+
+  [[nodiscard]] inline bool is_valid_child(const node &n, size_t index) const {
+    return apply<bool>([&n, &index](const auto &self) {
+      return self.is_valid_child(n, index);
+    });
+  }
+
  private:
   base *_node;
   size_t _typeid;

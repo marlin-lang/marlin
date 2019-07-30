@@ -16,13 +16,14 @@ int main(int argc, char *argv[]) {
         std::cout << parse_errors.size() << " parsing errors generated.\n";
         return 3;
       } else {
-        auto linted_code{marlin::lint::linter{std::move(code)}.lint()};
+        marlin::lint::linter l{code};
+        l.lint();
 
         marlin::exec::environment env;
         env.register_print_callback(
             [](const auto &string) { std::cout << string; });
         try {
-          env.execute(linted_code, argv[1]);
+          env.execute(code, argv[1]);
           return 0;
         } catch (const marlin::exec::generation_error &e) {
           const auto loc{e.node().source_code_range().begin};
