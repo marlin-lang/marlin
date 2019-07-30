@@ -117,6 +117,8 @@ token scanner::make_string_token() {
         case 't':
           result.push_back('\t');
           break;
+        case '\n':
+          break;
         default:
           result.push_back(*_current);
           break;

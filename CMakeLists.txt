@@ -28,7 +28,8 @@ target_link_libraries(${PROJECT_NAME}.marlin
                                 ${PROJECT_NAME}.exec)
 
 if(NOT SUBPROJECT)
-  add_executable(marlin_main main.cpp)
-  set_target_properties(marlin_main PROPERTIES OUTPUT_NAME marlin)
-  target_link_libraries(marlin_main ${PROJECT_NAME}.marlin)
+  add_subdirectory(cli)
+
+  add_subdirectory(test)
+  enable_testing()
 endif()
