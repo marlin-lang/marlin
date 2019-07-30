@@ -6,7 +6,7 @@
 namespace marlin::lint {
 
 struct linter {
-  inline linter(code& c) : _code{c} {}
+  inline linter(code& c) noexcept : _code{c} {}
 
   void lint() { lint_tree(_code); }
 

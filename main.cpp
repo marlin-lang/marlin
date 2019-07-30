@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include <marlin/exec.hpp>
+#include <marlin/format.hpp>
 #include <marlin/lint.hpp>
 #include <marlin/parse.hpp>
 
@@ -18,6 +19,16 @@ int main(int argc, char *argv[]) {
       } else {
         marlin::lint::linter l{code};
         l.lint();
+
+        // Testing
+        marlin::format::highlight hl{code};
+        const auto highlights = hl.generate();
+        for (const auto &token : highlights) {
+          std::cout << token.range.begin.line << ":" << token.range.begin.column
+                    << " - " << token.range.end.line << ":"
+                    << token.range.end.column << "  "
+                    << static_cast<size_t>(token.type) << "\n";
+        }
 
         marlin::exec::environment env;
         env.register_print_callback(

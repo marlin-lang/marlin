@@ -70,6 +70,12 @@ struct unary_expression : expression {
     return n.inherits<expression>();
   }
 
+  [[nodiscard]] inline source_range op_range() const noexcept {
+    const auto start{source_code_range().begin};
+    const auto length{length_of(op)};
+    return {start, {start.line, start.column + length}};
+  }
+
   explicit inline unary_expression(unary_op _op, node _argument)
       : expression{1}, op{_op} {
     push_child(std::move(_argument));
@@ -88,11 +94,20 @@ struct binary_expression : expression {
     return n.inherits<expression>();
   }
 
-  explicit inline binary_expression(node _left, binary_op _op, node _right)
-      : expression{2}, op{_op} {
+  [[nodiscard]] inline source_range op_range() const noexcept {
+    const auto length{length_of(op)};
+    return {_op_loc, {_op_loc.line, _op_loc.column + length}};
+  }
+
+  explicit inline binary_expression(node _left, binary_op _op,
+                                    source_loc _op_start, node _right)
+      : expression{2}, op{_op}, _op_loc{_op_start} {
     push_child(std::move(_left));
     push_child(std::move(_right));
   }
+
+ private:
+  source_loc _op_loc;
 };
 
 struct call_expression : expression {
