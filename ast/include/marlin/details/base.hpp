@@ -42,6 +42,9 @@ struct base {
   [[nodiscard]] inline source_range source_code_range() const noexcept {
     return _source_range;
   }
+  [[nodiscard]] inline bool contains(source_loc loc) const noexcept {
+    return _source_range.contains(loc);
+  }
 
   [[nodiscard]] inline bool has_parent() const noexcept {
     return _parent != nullptr;

@@ -3,6 +3,8 @@
 
 #include <memory>
 
+#include "utils.hpp"
+
 namespace marlin {
 
 namespace ast {
@@ -73,6 +75,9 @@ struct node {
       return self.is_valid_child(n, index);
     });
   }
+
+  [[nodiscard]] node &locate(source_loc loc);
+  [[nodiscard]] const node &locate(source_loc loc) const;
 
  private:
   base *_node;

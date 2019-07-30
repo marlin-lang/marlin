@@ -14,12 +14,12 @@ const marlin::code* find_expression(const marlin::code& c) {
 }
 
 TEST_CASE("parse::Parse simple numeric expression", "[parse]") {
-  const auto [code, errors] = marlin::parse::process("5 / 6;");
+  const auto [code, errors]{marlin::parse::process("5 / 6;")};
   REQUIRE(errors.size() == 0);
 
-  const auto* ptr = find_expression(code);
+  const auto* ptr{find_expression(code)};
   REQUIRE(ptr != nullptr);
-  const auto& expr = *ptr;
+  const auto& expr{*ptr};
   REQUIRE(expr.is<marlin::ast::binary_expression>());
   REQUIRE(expr.as<marlin::ast::binary_expression>().op ==
           marlin::ast::binary_op::divide);
@@ -33,12 +33,12 @@ TEST_CASE("parse::Parse simple numeric expression", "[parse]") {
 }
 
 TEST_CASE("parse::Parse numeric expression with precedence", "[parse]") {
-  const auto [code, errors] = marlin::parse::process("5 + 6 * 7 + 8;");
+  const auto [code, errors]{marlin::parse::process("5 + 6 * 7 + 8;")};
   REQUIRE(errors.size() == 0);
 
-  const auto* ptr = find_expression(code);
+  const auto* ptr{find_expression(code)};
   REQUIRE(ptr != nullptr);
-  const auto& expr = *ptr;
+  const auto& expr{*ptr};
   REQUIRE(expr.is<marlin::ast::binary_expression>());
   REQUIRE(expr.as<marlin::ast::binary_expression>().op ==
           marlin::ast::binary_op::add);
@@ -75,12 +75,12 @@ TEST_CASE("parse::Parse numeric expression with precedence", "[parse]") {
 }
 
 TEST_CASE("parse::Parse numeric expression with parentheses", "[parse]") {
-  const auto [code, errors] = marlin::parse::process("(5 + 6) * 7;");
+  const auto [code, errors]{marlin::parse::process("(5 + 6) * 7;")};
   REQUIRE(errors.size() == 0);
 
-  const auto* ptr = find_expression(code);
+  const auto* ptr{find_expression(code)};
   REQUIRE(ptr != nullptr);
-  const auto& expr = *ptr;
+  const auto& expr{*ptr};
   REQUIRE(expr.is<marlin::ast::binary_expression>());
   REQUIRE(expr.as<marlin::ast::binary_expression>().op ==
           marlin::ast::binary_op::multiply);

@@ -8,7 +8,7 @@ TEST_CASE("parse::Report non-existent files", "[parse]") {
 }
 
 TEST_CASE("parse::Parse file", "[parse]") {
-  const auto [code, errors] = marlin::parse::process_file("existent_file.mar");
+  const auto [code, errors]{marlin::parse::process_file("existent_file.mar")};
   REQUIRE(errors.size() == 0);
 
   REQUIRE(code.is<marlin::ast::program>());
