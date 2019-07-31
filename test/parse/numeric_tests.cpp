@@ -21,14 +21,14 @@ TEST_CASE("parse::Parse simple numeric expression", "[parse]") {
   REQUIRE(ptr != nullptr);
   const auto& expr{*ptr};
   REQUIRE(expr.is<marlin::ast::binary_expression>());
-  REQUIRE(expr.as<marlin::ast::binary_expression>().op ==
-          marlin::ast::binary_op::divide);
+  CHECK(expr.as<marlin::ast::binary_expression>().op ==
+        marlin::ast::binary_op::divide);
   REQUIRE(expr->children_count() == 2);
   REQUIRE(expr->child(0).is<marlin::ast::number_literal>());
-  REQUIRE(expr->child(0).as<marlin::ast::number_literal>().number == "5");
+  CHECK(expr->child(0).as<marlin::ast::number_literal>().number == "5");
   REQUIRE(expr->child(0)->children_count() == 0);
   REQUIRE(expr->child(1).is<marlin::ast::number_literal>());
-  REQUIRE(expr->child(1).as<marlin::ast::number_literal>().number == "6");
+  CHECK(expr->child(1).as<marlin::ast::number_literal>().number == "6");
   REQUIRE(expr->child(0)->children_count() == 0);
 }
 
@@ -40,37 +40,37 @@ TEST_CASE("parse::Parse numeric expression with precedence", "[parse]") {
   REQUIRE(ptr != nullptr);
   const auto& expr{*ptr};
   REQUIRE(expr.is<marlin::ast::binary_expression>());
-  REQUIRE(expr.as<marlin::ast::binary_expression>().op ==
-          marlin::ast::binary_op::add);
+  CHECK(expr.as<marlin::ast::binary_expression>().op ==
+        marlin::ast::binary_op::add);
   REQUIRE(expr->children_count() == 2);
   REQUIRE(expr->child(0).is<marlin::ast::binary_expression>());
-  REQUIRE(expr->child(0).as<marlin::ast::binary_expression>().op ==
-          marlin::ast::binary_op::add);
+  CHECK(expr->child(0).as<marlin::ast::binary_expression>().op ==
+        marlin::ast::binary_op::add);
   REQUIRE(expr->child(0)->children_count() == 2);
   REQUIRE(expr->child(0)->child(0).is<marlin::ast::number_literal>());
-  REQUIRE(expr->child(0)->child(0).as<marlin::ast::number_literal>().number ==
-          "5");
+  CHECK(expr->child(0)->child(0).as<marlin::ast::number_literal>().number ==
+        "5");
   REQUIRE(expr->child(0)->child(0)->children_count() == 0);
   REQUIRE(expr->child(0)->child(1).is<marlin::ast::binary_expression>());
-  REQUIRE(expr->child(0)->child(1).as<marlin::ast::binary_expression>().op ==
-          marlin::ast::binary_op::multiply);
+  CHECK(expr->child(0)->child(1).as<marlin::ast::binary_expression>().op ==
+        marlin::ast::binary_op::multiply);
   REQUIRE(expr->child(0)->child(1)->children_count() == 2);
   REQUIRE(expr->child(0)->child(1)->child(0).is<marlin::ast::number_literal>());
-  REQUIRE(expr->child(0)
-              ->child(1)
-              ->child(0)
-              .as<marlin::ast::number_literal>()
-              .number == "6");
+  CHECK(expr->child(0)
+            ->child(1)
+            ->child(0)
+            .as<marlin::ast::number_literal>()
+            .number == "6");
   REQUIRE(expr->child(0)->child(1)->child(0)->children_count() == 0);
   REQUIRE(expr->child(0)->child(1)->child(1).is<marlin::ast::number_literal>());
-  REQUIRE(expr->child(0)
-              ->child(1)
-              ->child(1)
-              .as<marlin::ast::number_literal>()
-              .number == "7");
+  CHECK(expr->child(0)
+            ->child(1)
+            ->child(1)
+            .as<marlin::ast::number_literal>()
+            .number == "7");
   REQUIRE(expr->child(0)->child(1)->child(1)->children_count() == 0);
   REQUIRE(expr->child(1).is<marlin::ast::number_literal>());
-  REQUIRE(expr->child(1).as<marlin::ast::number_literal>().number == "8");
+  CHECK(expr->child(1).as<marlin::ast::number_literal>().number == "8");
   REQUIRE(expr->child(1)->children_count() == 0);
 }
 
@@ -82,22 +82,22 @@ TEST_CASE("parse::Parse numeric expression with parentheses", "[parse]") {
   REQUIRE(ptr != nullptr);
   const auto& expr{*ptr};
   REQUIRE(expr.is<marlin::ast::binary_expression>());
-  REQUIRE(expr.as<marlin::ast::binary_expression>().op ==
-          marlin::ast::binary_op::multiply);
+  CHECK(expr.as<marlin::ast::binary_expression>().op ==
+        marlin::ast::binary_op::multiply);
   REQUIRE(expr->children_count() == 2);
   REQUIRE(expr->child(0).is<marlin::ast::binary_expression>());
-  REQUIRE(expr->child(0).as<marlin::ast::binary_expression>().op ==
-          marlin::ast::binary_op::add);
+  CHECK(expr->child(0).as<marlin::ast::binary_expression>().op ==
+        marlin::ast::binary_op::add);
   REQUIRE(expr->child(0)->children_count() == 2);
   REQUIRE(expr->child(0)->child(0).is<marlin::ast::number_literal>());
-  REQUIRE(expr->child(0)->child(0).as<marlin::ast::number_literal>().number ==
-          "5");
+  CHECK(expr->child(0)->child(0).as<marlin::ast::number_literal>().number ==
+        "5");
   REQUIRE(expr->child(0)->child(0)->children_count() == 0);
   REQUIRE(expr->child(0)->child(1).is<marlin::ast::number_literal>());
-  REQUIRE(expr->child(0)->child(1).as<marlin::ast::number_literal>().number ==
-          "6");
+  CHECK(expr->child(0)->child(1).as<marlin::ast::number_literal>().number ==
+        "6");
   REQUIRE(expr->child(0)->child(1)->children_count() == 0);
   REQUIRE(expr->child(1).is<marlin::ast::number_literal>());
-  REQUIRE(expr->child(1).as<marlin::ast::number_literal>().number == "7");
+  CHECK(expr->child(1).as<marlin::ast::number_literal>().number == "7");
   REQUIRE(expr->child(1)->children_count() == 0);
 }

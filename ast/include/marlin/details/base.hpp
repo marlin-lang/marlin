@@ -33,6 +33,8 @@ struct base {
   friend lint::linter;
   friend exec::generator;
 
+  friend node;
+
   explicit inline base(utils::move_vector<node> children)
       : _children{std::move(children)} {}
   explicit inline base(size_t children_count) {

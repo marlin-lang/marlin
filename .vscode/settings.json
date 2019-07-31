@@ -1,5 +1,7 @@
 {
   "files.associations": {
+    "SConscript": "python",
+    "SConstruct": "python",
     "type_traits": "cpp",
     "__node_handle": "cpp",
     "__functional_03": "cpp",
@@ -60,7 +62,20 @@
     "typeindex": "cpp",
     "typeinfo": "cpp",
     "unordered_map": "cpp",
-    "vector": "cpp"
+    "vector": "cpp",
+    "__tree": "cpp",
+    "deque": "cpp",
+    "future": "cpp",
+    "iomanip": "cpp",
+    "map": "cpp",
+    "numeric": "cpp",
+    "random": "cpp",
+    "regex": "cpp",
+    "set": "cpp",
+    "stack": "cpp",
+    "thread": "cpp",
+    "variant": "cpp",
+    "charconv": "cpp"
   },
   "clang-format.style": "file",
   "C_Cpp.formatting": "Disabled"

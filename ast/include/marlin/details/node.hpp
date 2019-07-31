@@ -79,6 +79,9 @@ struct node {
   [[nodiscard]] node &locate(source_loc loc);
   [[nodiscard]] const node &locate(source_loc loc) const;
 
+  [[nodiscard]] node &locate_js(source_loc loc);
+  [[nodiscard]] const node &locate_js(source_loc loc) const;
+
  private:
   base *_node;
   size_t _typeid;

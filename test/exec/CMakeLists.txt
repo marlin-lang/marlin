@@ -1,1 +1,1 @@
-add_test_files(tests.cpp)
+add_test_files(exec_tests.cpp stacktrace_tests.cpp)

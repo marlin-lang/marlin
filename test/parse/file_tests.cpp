@@ -13,7 +13,7 @@ TEST_CASE("parse::Parse file", "[parse]") {
 
   REQUIRE(code.is<marlin::ast::program>());
   REQUIRE(code->children_count() == 1);
-  REQUIRE(code->child(0).is<marlin::ast::expression_statement>());
+  CHECK(code->child(0).is<marlin::ast::expression_statement>());
   REQUIRE(code->child(0)->children_count() == 1);
-  REQUIRE(code->child(0)->child(0).inherits<marlin::ast::expression>());
+  CHECK(code->child(0)->child(0).inherits<marlin::ast::expression>());
 }

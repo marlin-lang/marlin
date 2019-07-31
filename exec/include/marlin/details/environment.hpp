@@ -7,6 +7,10 @@
 
 #include "errors.hpp"
 #include "generator.hpp"
+#include "stacktrace.hpp"
+
+// Testing
+#include <iostream>
 
 namespace marlin::exec {
 
@@ -36,19 +40,15 @@ struct environment {
         });
   }
 
-  inline void execute(code&& c, const std::string& source_url = "<anonymous>") {
-    execute(c, source_url);
-  }
-
   inline void execute(code& c, const std::string& source_url = "<anonymous>") {
     const auto javascript = generator::generate(c);
     _ctx.clear_exception();
     _ctx.eval_script(javascript, source_url);
     if (!_ctx.ok()) {
-      // TODO: Locate runtime errors
-      // std::string
-      //     stack{_ctx.get_exception().to_object()["stack"].get().to_string()};
-      throw runtime_error{_ctx.get_exception().to_string()};
+      std::string stack{
+          _ctx.get_exception().to_object()["stack"].get().to_string()};
+      throw runtime_error{_ctx.get_exception().to_string(),
+                          parse_stacktrace(stack, source_url, c)};
     }
   }
 
