@@ -168,6 +168,18 @@ struct interpreter {
                          start);
   }
 
+  inline code parse_binary(code left, source_loc left_start, ast::binary_op op,
+                           precedence p) {
+    const auto start{_current_token.start};
+    next();
+    code node = finalize_node(
+        code::make<ast::binary_expression>(
+            std::move(left), op, parse_precedence(static_cast<uint8_t>(p) + 1)),
+        left_start);
+    node->as<ast::binary_expression>()._op_loc = start;
+    return node;
+  }
+
   inline code parse_standalone_token() {
     const auto start{_current_token.start};
     if (_current_token.parsed_node.has_value()) {

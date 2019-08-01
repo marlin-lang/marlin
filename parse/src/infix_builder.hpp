@@ -19,13 +19,7 @@ struct interpreter::infix_builder {
 
   inline void parse_binary(ast::binary_op op, precedence p) {
     if (test(p)) {
-      const auto start{_interp._current_token.start};
-      _interp.next();
-      _node = _interp.finalize_node(
-          code::make<ast::binary_expression>(
-              std::move(_node), op, start,
-              _interp.parse_precedence(static_cast<uint8_t>(p) + 1)),
-          _start);
+      _node = _interp.parse_binary(std::move(_node), _start, op, p);
     }
   }
 

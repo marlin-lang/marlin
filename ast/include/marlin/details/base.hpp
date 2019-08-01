@@ -5,27 +5,22 @@
 #include <type_traits>
 
 #include "node.hpp"
+#include "subnode_views.hpp"
 #include "subnodes.hpp"
 #include "utils.hpp"
 
 namespace marlin {
 
 namespace parse {
-
 struct interpreter;
-
 }  // namespace parse
 
 namespace lint {
-
 struct linter;
-
 }  // namespace lint
 
 namespace exec {
-
 struct generator;
-
 }  // namespace exec
 
 namespace ast {
@@ -34,6 +29,10 @@ struct base {
   friend parse::interpreter;
   friend lint::linter;
   friend exec::generator;
+
+  using subnode_vector_view = subnode::vector_view<base>;
+  using const_subnode_vector_view = subnode::const_vector_view<base>;
+  friend subnode_vector_view;
 
   template <typename node_type>
   struct impl;
@@ -67,7 +66,7 @@ struct base {
 
   [[nodiscard]] inline bool is_valid_child(const base &n, size_t index) const {
     return apply<bool>([&n, &index](const auto &self) {
-      return self.is_valid_child(n, index);
+      return self.check_valid_child(n, index);
     });
   }
 
@@ -89,13 +88,11 @@ struct base {
   }
   [[nodiscard]] inline base &parent() { return *_parent; }
 
-  [[nodiscard]] inline utils::access_vector_view<utils::move_vector<node>>
-  children() {
-    return {_children};
+  [[nodiscard]] inline utils::vector_view<utils::move_vector<node>> children() {
+    return _children;
   }
-  [[nodiscard]] inline utils::const_vector_view<utils::move_vector<node>>
-  children() const {
-    return {_children};
+  [[nodiscard]] inline const utils::move_vector<node> &children() const {
+    return _children;
   }
 
   inline node replace_child(node replacement, size_t target_index) {
@@ -137,11 +134,17 @@ struct base {
     return _children[r.index];
   }
 
-  utils::move_vector<node> _children;
+  inline subnode_vector_view get_subnode(subnode::vector &v) {
+    return {*this, v};
+  }
+  inline const_subnode_vector_view get_subnode(const subnode::vector &v) const {
+    return {*this, v};
+  }
 
  private:
   size_t _typeid;
 
+  utils::move_vector<node> _children;
   base *_parent{nullptr};
 
   source_range _source_range;
@@ -196,6 +199,11 @@ struct base {
     std::move(value.begin(), value.end(), std::back_inserter(_children));
     do_init(std::forward<arg_type>(args)...);
   }
+
+  inline void apply_update_subnode_refs() {
+    apply<void>([](auto &n) { n.update_subnode_refs(); });
+  }
+  inline void update_subnode_refs() const noexcept {}
 
   template <typename node_type>
   [[nodiscard]] static inline constexpr size_t get_typeid() noexcept;
