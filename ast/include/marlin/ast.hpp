@@ -7,6 +7,6 @@
 #include "details/specs.hpp"
 #include "details/utils.hpp"
 
-#include "details/node.inc.hpp"
+#include "details/base.inc.hpp"
 
 #endif  // marlin_ast_hpp

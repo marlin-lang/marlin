@@ -22,9 +22,9 @@ struct interpreter::infix_builder {
       const auto start{_interp._current_token.start};
       _interp.next();
       _node = _interp.finalize_node(
-          ast::binary_expression{
+          code::make<ast::binary_expression>(
               std::move(_node), op, start,
-              _interp.parse_precedence(static_cast<uint8_t>(p) + 1)},
+              _interp.parse_precedence(static_cast<uint8_t>(p) + 1)),
           _start);
     }
   }
@@ -32,7 +32,8 @@ struct interpreter::infix_builder {
   inline void parse_call() {
     if (test(precedence::call)) {
       _node = _interp.finalize_node(
-          ast::call_expression{std::move(_node), _interp.parse_arguments()},
+          code::make<ast::call_expression>(std::move(_node),
+                                           _interp.parse_arguments()),
           _start);
     }
   }

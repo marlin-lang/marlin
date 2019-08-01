@@ -1,14 +1,16 @@
 #include <catch2/catch.hpp>
 
 #include <optional>
-#include <string>
 
 #include <marlin/parse.hpp>
 
 const std::string* find_string_literal(const marlin::code& c) {
-  if (c->children_count() == 1 && c->child(0)->children_count() == 1 &&
-      c->child(0)->child(0).is<marlin::ast::string_literal>()) {
-    return &c->child(0)->child(0).as<marlin::ast::string_literal>().string;
+  if (c->children().size() == 1 && c->children()[0]->children().size() == 1 &&
+      c->children()[0]->children()[0]->is<marlin::ast::string_literal>()) {
+    return &c->children()[0]
+                ->children()[0]
+                ->as<marlin::ast::string_literal>()
+                .string;
   } else {
     return nullptr;
   }

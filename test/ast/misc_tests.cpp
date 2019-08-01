@@ -19,12 +19,12 @@ TEST_CASE("ast::Evaluate binary operators lengths", "[ast]") {
 }
 
 TEST_CASE("ast::Test node inheritance", "[ast]") {
-  marlin::code statement =
-      marlin::ast::expression_statement{marlin::ast::string_literal{"x"}};
-  marlin::code expression = marlin::ast::string_literal{"x"};
+  auto statement = marlin::code::make<marlin::ast::expression_statement>(
+      marlin::code::make<marlin::ast::string_literal>("x"));
+  auto expression = marlin::code::make<marlin::ast::string_literal>("x");
 
-  CHECK(statement.inherits<marlin::ast::statement>());
-  CHECK_FALSE(statement.inherits<marlin::ast::expression>());
-  CHECK_FALSE(expression.inherits<marlin::ast::statement>());
-  CHECK(expression.inherits<marlin::ast::expression>());
+  CHECK(statement->inherits<marlin::ast::statement>());
+  CHECK_FALSE(statement->inherits<marlin::ast::expression>());
+  CHECK_FALSE(expression->inherits<marlin::ast::statement>());
+  CHECK(expression->inherits<marlin::ast::expression>());
 }

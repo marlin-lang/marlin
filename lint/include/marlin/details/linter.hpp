@@ -6,26 +6,27 @@
 namespace marlin::lint {
 
 struct linter {
-  inline linter(code& c) noexcept : _code{c} {}
+  inline linter(ast::base& c) noexcept : _code{c} {}
 
   void lint() { lint_tree(_code); }
 
  private:
-  code& _code;
+  ast::base& _code;
 
-  inline void lint_tree(code& node) {
-    for (size_t i{0}; i < node->children_count(); i++) {
-      if (!node.is_valid_child(node->child(i), i)) {
+  inline void lint_tree(ast::base& node) {
+    const auto children{node.children()};
+    for (size_t i{0}; i < children.size(); i++) {
+      if (!node.is_valid_child(children[i].get(), i)) {
         // Error reporting
-        const auto loc{node->child(i)->source_code_range()};
+        const auto loc{children[i]->source_code_range()};
         std::cout << "Invalid node found at " << loc.begin.line << ":"
                   << loc.begin.column << "\n";
       }
     }
 
     // TODO: Lint sub-nodes differently for each type
-    for (size_t i{0}; i < node->children_count(); i++) {
-      lint_tree(node->child(i));
+    for (auto& child : node.children()) {
+      lint_tree(child.get());
     }
   }
 };

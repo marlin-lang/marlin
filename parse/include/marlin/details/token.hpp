@@ -19,6 +19,7 @@ enum class token_type : uint8_t {
   minus,
   star,
   slash,
+  kwd_let,
   kwd_true,
   kwd_false,
   identifier,
@@ -29,14 +30,23 @@ enum class token_type : uint8_t {
 };
 
 static constexpr std::array _token_type_name_map{
-    "\"(\"" /* left_paren */,    "\")\"" /* right_paren */,
-    "\".\"" /* dot */,           "\",\"" /* comma */,
-    "\";\"" /* semicolon */,     "\"+\"" /* plus */,
-    "\"-\"" /* minus */,         "\"*\"" /* star */,
-    "\"/\"" /* slash */,         "\"true\"" /* kwd_true */,
-    "\"false\"" /* kwd_false */, "(id)" /* identifier */,
-    "(number)" /* number */,     "(string)" /* string */,
-    "character" /* error */,     "end of file" /* eof */
+    "\"(\"" /* left_paren */,
+    "\")\"" /* right_paren */,
+    "\".\"" /* dot */,
+    "\",\"" /* comma */,
+    "\";\"" /* semicolon */,
+    "\"+\"" /* plus */,
+    "\"-\"" /* minus */,
+    "\"*\"" /* star */,
+    "\"/\"" /* slash */,
+    "\"let\"" /* kwd_let */,
+    "\"true\"" /* kwd_true */,
+    "\"false\"" /* kwd_false */,
+    "(id)" /* identifier */,
+    "(number)" /* number */,
+    "(string)" /* string */,
+    "character" /* error */,
+    "end of file" /* eof */
 };
 inline constexpr const char* name_for(token_type type) noexcept {
   return _token_type_name_map[static_cast<uint8_t>(type)];

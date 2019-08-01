@@ -19,7 +19,8 @@ struct interpreter {
   inline std::pair<code, std::vector<error>> parse() {
     const auto start{_current_token.start};
     std::pair<code, std::vector<error>> result{
-        finalize_node(ast::program{parse_statements(token_type::eof)}, start),
+        finalize_node(
+            code::make<ast::program>(parse_statements(token_type::eof)), start),
         std::move(_errors)};
     _errors = {};
     return result;
@@ -49,9 +50,6 @@ struct interpreter {
 
   inline code finalize_node(code c, source_loc start) {
     c->_source_range = {start, _previous_token_end};
-    for (size_t i{0}; i < c->children_count(); i++) {
-      c->child(i)->_parent = &c.get();
-    }
     return c;
   }
 
@@ -77,8 +75,9 @@ struct interpreter {
 
   inline code parse_error(error e, source_loc start,
                           std::string::const_iterator start_ptr) {
-    code node = finalize_node(
-        ast::erroneous_line{{start_ptr, _sc.current_ptr()}}, start);
+    code node = finalize_node(code::make<ast::erroneous_line>(
+                                  std::string{start_ptr, _sc.current_ptr()}),
+                              start);
     e.set_node(node.get());
     _errors.push_back(std::move(e));
     return node;
@@ -128,10 +127,11 @@ struct interpreter {
   }
 
   inline code parse_group() {
+    const auto start{_current_token.start};
     next();
     auto group{parse_precedence(expression_base_precedence)};
     consume(token_type::right_paren);
-    return group;
+    return finalize_node(std::move(group), start);
   }
 
   inline code parse_expression_head() {
@@ -163,8 +163,9 @@ struct interpreter {
   inline code parse_unary(ast::unary_op op) {
     const auto start{_current_token.start};
     next();
-    return finalize_node(
-        ast::unary_expression{op, parse_precedence(precedence::unary)}, start);
+    return finalize_node(code::make<ast::unary_expression>(
+                             op, parse_precedence(precedence::unary)),
+                         start);
   }
 
   inline code parse_standalone_token() {
@@ -183,7 +184,7 @@ struct interpreter {
   inline code bool_literal(bool value) {
     const auto start{_current_token.start};
     next();
-    return finalize_node(ast::bool_literal{value}, start);
+    return finalize_node(code::make<ast::bool_literal>(value), start);
   }
 
   inline void consume(token_type type) {

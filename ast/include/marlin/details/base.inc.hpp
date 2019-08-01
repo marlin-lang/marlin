@@ -1,5 +1,5 @@
-#ifndef marlin_ast_node_inc
-#define marlin_ast_node_inc
+#ifndef marlin_ast_base_inc
+#define marlin_ast_base_inc
 
 namespace marlin::ast {
 
@@ -26,8 +26,6 @@ struct type_map {
 
 }  // namespace utils
 
-inline node::node() : node{ast::program{{}}} {}
-
 #define ASTS(X)           \
   X(erroneous_line)       \
   X(program)              \
@@ -43,7 +41,7 @@ inline node::node() : node{ast::program{{}}} {}
 #define _LIST_TEMPLATE(NAME) NAME,
 
 template <typename node_type>
-inline constexpr size_t node::get_typeid() noexcept {
+inline constexpr size_t base::get_typeid() noexcept {
   return utils::type_map<node_type, ASTS(_LIST_TEMPLATE) void>::index;
 }
 
@@ -52,7 +50,7 @@ inline constexpr size_t node::get_typeid() noexcept {
     return callable(as<NAME>());
 
 template <typename return_type, typename callable_type>
-inline return_type node::apply(callable_type callable) {
+inline return_type base::apply(callable_type callable) {
   switch (type()) {
     default:
       /* cannot happen! */
@@ -61,7 +59,7 @@ inline return_type node::apply(callable_type callable) {
   }
 }
 template <typename return_type, typename callable_type>
-inline return_type node::apply(callable_type callable) const {
+inline return_type base::apply(callable_type callable) const {
   switch (type()) {
     default:
       /* cannot happen! */
@@ -72,4 +70,4 @@ inline return_type node::apply(callable_type callable) const {
 
 }  // namespace marlin::ast
 
-#endif  // marlin_ast_node_inc
+#endif  // marlin_ast_base_inc

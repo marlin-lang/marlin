@@ -55,9 +55,10 @@ std::vector<code_type*> parse_stacktrace(const std::string& stacktrace,
   return nodes;
 }
 
-template std::vector<code*> parse_stacktrace<code>(const std::string&,
-                                                   const std::string&, code&);
-template std::vector<const code*> parse_stacktrace<const code>(
-    const std::string&, const std::string&, const code&);
+template std::vector<ast::base*> parse_stacktrace<ast::base>(const std::string&,
+                                                             const std::string&,
+                                                             ast::base&);
+template std::vector<const ast::base*> parse_stacktrace<const ast::base>(
+    const std::string&, const std::string&, const ast::base&);
 
 }  // namespace marlin::exec

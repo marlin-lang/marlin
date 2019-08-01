@@ -40,7 +40,8 @@ struct environment {
         });
   }
 
-  inline void execute(code& c, const std::string& source_url = "<anonymous>") {
+  inline void execute(ast::base& c,
+                      const std::string& source_url = "<anonymous>") {
     const auto javascript = generator::generate(c);
     _ctx.clear_exception();
     _ctx.eval_script(javascript, source_url);

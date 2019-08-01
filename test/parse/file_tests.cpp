@@ -11,9 +11,10 @@ TEST_CASE("parse::Parse file", "[parse]") {
   const auto [code, errors]{marlin::parse::process_file("existent_file.mar")};
   REQUIRE(errors.size() == 0);
 
-  REQUIRE(code.is<marlin::ast::program>());
-  REQUIRE(code->children_count() == 1);
-  CHECK(code->child(0).is<marlin::ast::expression_statement>());
-  REQUIRE(code->child(0)->children_count() == 1);
-  CHECK(code->child(0)->child(0).inherits<marlin::ast::expression>());
+  REQUIRE(code->is<marlin::ast::program>());
+  REQUIRE(code->children().size() == 1);
+  CHECK(code->children()[0]->is<marlin::ast::expression_statement>());
+  REQUIRE(code->children()[0]->children().size() == 1);
+  CHECK(
+      code->children()[0]->children()[0]->inherits<marlin::ast::expression>());
 }

@@ -7,66 +7,60 @@
 
 namespace marlin::ast {
 
-// Forward declarations
-struct statement;
-struct expression;
+using const_nodes_view = utils::const_vector_view<utils::move_vector<node>>;
+using nodes_view = utils::vector_view<utils::move_vector<node>>;
 
-struct erroneous_line : base {
+// Forward declarations
+struct statement {};
+struct expression {};
+
+struct erroneous_line : base::impl<erroneous_line> {
   std::string line;
 
-  [[nodiscard]] inline bool is_valid_child(const node &, size_t) const {
+  [[nodiscard]] inline bool is_valid_child(const base &, size_t) const {
     return false;
   }
 
-  explicit inline erroneous_line(std::string _line)
-      : base{0}, line{std::move(_line)} {}
+  explicit inline erroneous_line(std::string _line) : line{std::move(_line)} {}
 };
 
-struct program : base {
-  [[nodiscard]] inline size_t statement_count() const {
-    return children_count();
-  }
-  [[nodiscard]] inline node &statement(size_t index) { return child(index); }
-  [[nodiscard]] inline const node &statement(size_t index) const {
-    return child(index);
+struct program : base::impl<program> {
+  [[nodiscard]] inline nodes_view statements() { return {_children}; }
+  [[nodiscard]] inline const_nodes_view statements() const {
+    return {_children};
   }
 
-  [[nodiscard]] inline bool is_valid_child(const node &n, size_t) const {
+  [[nodiscard]] inline bool is_valid_child(const base &n, size_t) const {
     return n.inherits<ast::statement>();
   }
 
-  explicit inline program(utils::move_vector<node> _statements)
-      : base{std::move(_statements)} {}
+  explicit inline program(utils::move_vector<node> _statements) {
+    for (auto &statement : _statements) {
+      push_back_child(std::move(statement));
+    }
+  }
 };
 
-struct statement : base {
-  using base::base;
-};
+struct expression_statement : base::impl<expression_statement>, statement {
+  [[nodiscard]] inline node &expression() { return _children[0]; }
+  [[nodiscard]] inline const node &expression() const { return _children[0]; }
 
-struct expression_statement : statement {
-  [[nodiscard]] inline node &expression() { return child(0); }
-  [[nodiscard]] inline const node &expression() const { return child(0); }
-
-  [[nodiscard]] inline bool is_valid_child(const node &n, size_t) const {
+  [[nodiscard]] inline bool is_valid_child(const base &n, size_t) const {
     return n.inherits<ast::expression>();
   }
 
-  explicit inline expression_statement(node _expression) : statement{1} {
-    push_child(std::move(_expression));
+  explicit inline expression_statement(node _expression) {
+    push_back_child(std::move(_expression));
   }
 };
 
-struct expression : base {
-  using base::base;
-};
-
-struct unary_expression : expression {
+struct unary_expression : base::impl<unary_expression>, expression {
   unary_op op;
 
-  [[nodiscard]] inline node &argument() { return child(0); }
-  [[nodiscard]] inline const node &argument() const { return child(0); }
+  [[nodiscard]] inline node &argument() { return _children[0]; }
+  [[nodiscard]] inline const node &argument() const { return _children[0]; }
 
-  [[nodiscard]] inline bool is_valid_child(const node &n, size_t) const {
+  [[nodiscard]] inline bool is_valid_child(const base &n, size_t) const {
     return n.inherits<expression>();
   }
 
@@ -76,21 +70,20 @@ struct unary_expression : expression {
     return {start, {start.line, start.column + length}};
   }
 
-  explicit inline unary_expression(unary_op _op, node _argument)
-      : expression{1}, op{_op} {
-    push_child(std::move(_argument));
+  explicit inline unary_expression(unary_op _op, node _argument) : op{_op} {
+    push_back_child(std::move(_argument));
   }
 };
 
-struct binary_expression : expression {
+struct binary_expression : base::impl<binary_expression>, expression {
   binary_op op;
 
-  [[nodiscard]] inline node &left() { return child(0); }
-  [[nodiscard]] inline const node &left() const { return child(0); }
-  [[nodiscard]] inline node &right() { return child(1); }
-  [[nodiscard]] inline const node &right() const { return child(1); }
+  [[nodiscard]] inline node &left() { return _children[0]; }
+  [[nodiscard]] inline const node &left() const { return _children[0]; }
+  [[nodiscard]] inline node &right() { return _children[1]; }
+  [[nodiscard]] inline const node &right() const { return _children[1]; }
 
-  [[nodiscard]] inline bool is_valid_child(const node &n, size_t) const {
+  [[nodiscard]] inline bool is_valid_child(const base &n, size_t) const {
     return n.inherits<expression>();
   }
 
@@ -101,84 +94,79 @@ struct binary_expression : expression {
 
   explicit inline binary_expression(node _left, binary_op _op,
                                     source_loc _op_start, node _right)
-      : expression{2}, op{_op}, _op_loc{_op_start} {
-    push_child(std::move(_left));
-    push_child(std::move(_right));
+      : op{_op}, _op_loc{_op_start} {
+    push_back_child(std::move(_left));
+    push_back_child(std::move(_right));
   }
 
  private:
   source_loc _op_loc;
 };
 
-struct call_expression : expression {
-  [[nodiscard]] inline node &callee() { return child(0); }
-  [[nodiscard]] inline const node &callee() const { return child(0); }
+struct call_expression : base::impl<call_expression>, expression {
+  [[nodiscard]] inline node &callee() { return _children[0]; }
+  [[nodiscard]] inline const node &callee() const { return _children[0]; }
 
-  [[nodiscard]] inline size_t argument_count() const {
-    return children_count() - 1;
-  }
-  [[nodiscard]] inline node &argument(size_t index) { return child(index + 1); }
-  [[nodiscard]] inline const node &argument(size_t index) const {
-    return child(index + 1);
+  [[nodiscard]] inline nodes_view arguments() { return {_children, 1}; }
+  [[nodiscard]] inline const_nodes_view arguments() const {
+    return {_children, 1};
   }
 
-  [[nodiscard]] inline bool is_valid_child(const node &n, size_t) const {
+  [[nodiscard]] inline bool is_valid_child(const base &n, size_t) const {
     return n.inherits<expression>();
   }
 
   explicit inline call_expression(node _callee,
-                                  utils::move_vector<node> _arguments)
-      : expression{_arguments.size() + 1} {
-    push_child(std::move(_callee));
-    for (node &arg : _arguments) {
-      push_child(std::move(arg));
+                                  utils::move_vector<node> _arguments) {
+    push_back_child(std::move(_callee));
+    for (auto &argument : _arguments) {
+      push_back_child(std::move(argument));
     }
   }
 };
 
-struct identifier : expression {
+struct identifier : base::impl<identifier>, expression {
   std::string name;
 
-  [[nodiscard]] inline bool is_valid_child(const node &, size_t) const {
+  [[nodiscard]] inline bool is_valid_child(const base &, size_t) const {
     return false;
   }
 
-  explicit inline identifier(std::string _name)
-      : expression{0}, name{std::move(_name)} {}
+  explicit inline identifier(std::string _name) : name{std::move(_name)} {}
 };
 
-struct bool_literal : expression {
+struct bool_literal : base::impl<bool_literal>, expression {
   bool value;
 
-  [[nodiscard]] inline bool is_valid_child(const node &, size_t) const {
+  [[nodiscard]] inline bool is_valid_child(const base &, size_t) const {
     return false;
   }
 
-  explicit inline bool_literal(bool _value) : expression{0}, value{_value} {}
+  explicit inline bool_literal(bool _value) : value{_value} {}
 };
 
 // TODO: ast/storage for different forms number literal
 // etc. decimal form, scientific form,  etc.
-struct number_literal : expression {
+struct number_literal : base::impl<number_literal>, expression {
   std::string number;
 
-  [[nodiscard]] inline bool is_valid_child(const node &, size_t) const {
+  [[nodiscard]] inline bool is_valid_child(const base &, size_t) const {
     return false;
   }
 
   explicit inline number_literal(std::string _number)
-      : expression{0}, number{std::move(_number)} {}
+      : number{std::move(_number)} {}
 };
 
-struct string_literal : expression {
+struct string_literal : base::impl<string_literal>, expression {
   std::string string;
 
-  [[nodiscard]] inline bool is_valid_child(const node &, size_t) const {
+  [[nodiscard]] inline bool is_valid_child(const base &, size_t) const {
     return false;
   }
 
   explicit inline string_literal(std::string _string)
-      : expression{0}, string{std::move(_string)} {}
+      : string{std::move(_string)} {}
 };
 
 }  // namespace marlin::ast

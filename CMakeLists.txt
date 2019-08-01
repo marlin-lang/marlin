@@ -30,6 +30,6 @@ target_link_libraries(${PROJECT_NAME}.marlin
 if(NOT SUBPROJECT)
   add_subdirectory(cli)
 
-  add_subdirectory(test)
   enable_testing()
+  add_subdirectory(test)
 endif()

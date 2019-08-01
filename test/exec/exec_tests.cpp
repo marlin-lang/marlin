@@ -18,15 +18,34 @@ TEST_CASE("exec::Execute print statements", "[exec]") {
   auto [code, parse_errors]{marlin::parse::process(script)};
   REQUIRE(parse_errors.size() == 0);
 
-  marlin::lint::linter l{code};
+  marlin::lint::linter l{code.get()};
   l.lint();
 
   std::string result;
   marlin::exec::environment env;
   env.register_print_callback(
       [&result](const auto &string) { result.append(string); });
-  REQUIRE_NOTHROW(env.execute(code));
+  REQUIRE_NOTHROW(env.execute(code.get()));
   REQUIRE(result == "3.25 true false 55\n");
+}
+
+TEST_CASE("exec::Evaluate variable declarations", "[exec]") {
+  const std::string script{
+      "let a = 1;\n"
+      "print(a);\n"};
+
+  auto [code, parse_errors]{marlin::parse::process(script)};
+  REQUIRE(parse_errors.size() == 0);
+
+  marlin::lint::linter l{code.get()};
+  l.lint();
+
+  std::string result;
+  marlin::exec::environment env;
+  env.register_print_callback(
+      [&result](const auto &string) { result.append(string); });
+  REQUIRE_NOTHROW(env.execute(code.get()));
+  REQUIRE(result == "1");
 }
 
 // TODO: after implementing type checking, this will become lint error
@@ -36,7 +55,7 @@ TEST_CASE("exec::Report runtime error", "[exec]") {
   auto [code, parse_errors]{marlin::parse::process(script)};
   REQUIRE(parse_errors.size() == 0);
 
-  marlin::lint::linter l{code};
+  marlin::lint::linter l{code.get()};
   l.lint();
 
   std::string result;
@@ -46,12 +65,13 @@ TEST_CASE("exec::Report runtime error", "[exec]") {
 
   bool thrown{false};
   try {
-    env.execute(code);
+    env.execute(code.get());
   } catch (const marlin::exec::runtime_error &error) {
     thrown = true;
     CHECK(error.stack_depth() == 1);
     CHECK(error.stack(0).is<marlin::ast::identifier>());
-    CHECK(&error.stack(0) == &code->child(0)->child(0)->child(1));
+    CHECK(&error.stack(0) ==
+          &code->children()[0]->children()[0]->children()[1].get());
   }
   REQUIRE(thrown);
 }

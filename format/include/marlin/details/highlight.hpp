@@ -18,7 +18,7 @@ struct highlight {
         : type{_type}, range{_range} {}
   };
 
-  inline highlight(const code& c) noexcept : _code{c} {}
+  inline highlight(const ast::base& c) noexcept : _code{c} {}
 
   inline std::vector<token> generate() {
     generate_tokens(_code);
@@ -28,14 +28,14 @@ struct highlight {
   }
 
  private:
-  const code& _code;
+  const ast::base& _code;
   std::vector<token> _tokens;
 
-  void generate_tokens(const code& c) {
+  void generate_tokens(const ast::base& c) {
     if (!c.apply<bool>(
             [this](const auto& node) { return generate_tokens(node); })) {
-      for (size_t i{0}; i < c->children_count(); i++) {
-        generate_tokens(c->child(i));
+      for (const auto& child : c.children()) {
+        generate_tokens(child);
       }
     }
   }

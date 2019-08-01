@@ -1,4 +1,7 @@
-add_test_files(file_tests.cpp numeric_tests.cpp string_tests.cpp)
+add_test_files(file_tests.cpp
+               numeric_tests.cpp
+               string_tests.cpp
+               variable_tests.cpp)
 
 add_custom_target(${PROJECT_NAME}.test.parse.copy_files ALL
                   DEPENDS ${MARLIN_TEST_DIR}/existent_file.mar)

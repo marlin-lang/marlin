@@ -2,50 +2,16 @@
 
 #include "base.hpp"
 
-// To provide full definition for struct node
+// To give a complete definition for ast::base
 #include "ast.hpp"
-#include "node.inc.hpp"
+#include "base.inc.hpp"
 
 namespace marlin::ast {
 
-node &node::locate(source_loc loc) {
-  for (size_t i{0}; i < get().children_count(); i++) {
-    auto &child = get().child(i);
-    if (child->contains(loc)) {
-      return child.locate(loc);
-    }
+node::~node() {
+  if (_node != nullptr) {
+    _node->apply<void>([](auto &n) { delete &n; });
   }
-  return *this;
-}
-
-const node &node::locate(source_loc loc) const {
-  for (size_t i{0}; i < get().children_count(); i++) {
-    const auto &child = get().child(i);
-    if (child->contains(loc)) {
-      return child.locate(loc);
-    }
-  }
-  return *this;
-}
-
-node &node::locate_js(source_loc loc) {
-  for (size_t i{0}; i < get().children_count(); i++) {
-    auto &child = get().child(i);
-    if (child->_js_range.contains(loc)) {
-      return child.locate_js(loc);
-    }
-  }
-  return *this;
-}
-
-const node &node::locate_js(source_loc loc) const {
-  for (size_t i{0}; i < get().children_count(); i++) {
-    const auto &child = get().child(i);
-    if (child->_js_range.contains(loc)) {
-      return child.locate_js(loc);
-    }
-  }
-  return *this;
 }
 
 }  // namespace marlin::ast
