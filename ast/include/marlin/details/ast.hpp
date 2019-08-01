@@ -17,6 +17,10 @@ struct expression {};
 struct placeholder : base::impl<placeholder> {
   std::string name;
 
+  [[nodiscard]] inline bool is_valid_child(const base &, size_t) const {
+    return false;
+  }
+
   explicit inline placeholder(std::string _name) : name{std::move(_name)} {}
 };
 
@@ -40,31 +44,39 @@ struct program : base::impl<program> {
     return n.inherits<ast::statement>();
   }
 
-  explicit inline program(utils::move_vector<node> _statements) {
-    for (auto &statement : _statements) {
-      push_back_child(std::move(statement));
-    }
+  explicit inline program(utils::move_vector<node> _s) {
+    init(_statements, std::move(_s));
   }
+
+ private:
+  subnode::vector _statements;
 };
 
 struct expression_statement : base::impl<expression_statement>, statement {
-  [[nodiscard]] inline node &expression() { return _children[0]; }
-  [[nodiscard]] inline const node &expression() const { return _children[0]; }
+  [[nodiscard]] inline node &expression() { return get_subnode(_expression); }
+  [[nodiscard]] inline const node &expression() const {
+    return get_subnode(_expression);
+  }
 
   [[nodiscard]] inline bool is_valid_child(const base &n, size_t) const {
     return n.inherits<ast::expression>();
   }
 
-  explicit inline expression_statement(node _expression) {
-    push_back_child(std::move(_expression));
+  explicit inline expression_statement(node _expr) {
+    init(_expression, std::move(_expr));
   }
+
+ private:
+  subnode::ref _expression;
 };
 
 struct unary_expression : base::impl<unary_expression>, expression {
   unary_op op;
 
-  [[nodiscard]] inline node &argument() { return _children[0]; }
-  [[nodiscard]] inline const node &argument() const { return _children[0]; }
+  [[nodiscard]] inline node &argument() { return get_subnode(_argument); }
+  [[nodiscard]] inline const node &argument() const {
+    return get_subnode(_argument);
+  }
 
   [[nodiscard]] inline bool is_valid_child(const base &n, size_t) const {
     return n.inherits<expression>();
@@ -76,18 +88,21 @@ struct unary_expression : base::impl<unary_expression>, expression {
     return {start, {start.line, start.column + length}};
   }
 
-  explicit inline unary_expression(unary_op _op, node _argument) : op{_op} {
-    push_back_child(std::move(_argument));
+  explicit inline unary_expression(unary_op _op, node _arg) : op{_op} {
+    init(_argument, std::move(_arg));
   }
+
+ private:
+  subnode::ref _argument;
 };
 
 struct binary_expression : base::impl<binary_expression>, expression {
   binary_op op;
 
-  [[nodiscard]] inline node &left() { return _children[0]; }
-  [[nodiscard]] inline const node &left() const { return _children[0]; }
-  [[nodiscard]] inline node &right() { return _children[1]; }
-  [[nodiscard]] inline const node &right() const { return _children[1]; }
+  [[nodiscard]] inline node &left() { return get_subnode(_left); }
+  [[nodiscard]] inline const node &left() const { return get_subnode(_left); }
+  [[nodiscard]] inline node &right() { return get_subnode(_right); }
+  [[nodiscard]] inline const node &right() const { return get_subnode(_right); }
 
   [[nodiscard]] inline bool is_valid_child(const base &n, size_t) const {
     return n.inherits<expression>();
@@ -98,20 +113,24 @@ struct binary_expression : base::impl<binary_expression>, expression {
     return {_op_loc, {_op_loc.line, _op_loc.column + length}};
   }
 
-  explicit inline binary_expression(node _left, binary_op _op,
-                                    source_loc _op_start, node _right)
+  explicit inline binary_expression(node _l, binary_op _op,
+                                    source_loc _op_start, node _r)
       : op{_op}, _op_loc{_op_start} {
-    push_back_child(std::move(_left));
-    push_back_child(std::move(_right));
+    init(_left, std::move(_l), _right, std::move(_r));
   }
 
  private:
+  subnode::ref _left;
+  subnode::ref _right;
+
   source_loc _op_loc;
 };
 
 struct call_expression : base::impl<call_expression>, expression {
-  [[nodiscard]] inline node &callee() { return _children[0]; }
-  [[nodiscard]] inline const node &callee() const { return _children[0]; }
+  [[nodiscard]] inline node &callee() { return get_subnode(_callee); }
+  [[nodiscard]] inline const node &callee() const {
+    return get_subnode(_callee);
+  }
 
   [[nodiscard]] inline nodes_view arguments() { return {_children, 1}; }
   [[nodiscard]] inline const_nodes_view arguments() const {
@@ -122,13 +141,13 @@ struct call_expression : base::impl<call_expression>, expression {
     return n.inherits<expression>();
   }
 
-  explicit inline call_expression(node _callee,
-                                  utils::move_vector<node> _arguments) {
-    push_back_child(std::move(_callee));
-    for (auto &argument : _arguments) {
-      push_back_child(std::move(argument));
-    }
+  explicit inline call_expression(node _c, utils::move_vector<node> _arg) {
+    init(_callee, std::move(_c), _arguments, std::move(_arg));
   }
+
+ private:
+  subnode::ref _callee;
+  subnode::vector _arguments;
 };
 
 struct identifier : base::impl<identifier>, expression {

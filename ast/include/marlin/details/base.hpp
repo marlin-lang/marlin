@@ -1,9 +1,11 @@
 #ifndef marlin_ast_base_hpp
 #define marlin_ast_base_hpp
 
+#include <optional>
 #include <type_traits>
 
 #include "node.hpp"
+#include "subnodes.hpp"
 #include "utils.hpp"
 
 namespace marlin {
@@ -124,9 +126,15 @@ struct base {
   }
 
  protected:
-  inline void push_back_child(node child) {
-    child->_parent = this;
-    _children.emplace_back(std::move(child));
+  template <typename... arg_type>
+  inline void init(arg_type &&... args) {
+    _children.reserve(count_subnodes(args...));
+    do_init(std::forward<arg_type>(args)...);
+  }
+
+  inline node &get_subnode(subnode::ref &r) { return _children[r.index]; }
+  inline const node &get_subnode(const subnode::ref &r) const {
+    return _children[r.index];
   }
 
   utils::move_vector<node> _children;
@@ -140,6 +148,54 @@ struct base {
   source_range _js_range;
 
   explicit inline base(size_t tid) : _typeid{tid} {}
+
+  [[nodiscard]] inline size_t count_subnodes() { return 0; }
+  template <typename... arg_type>
+  [[nodiscard]] inline size_t count_subnodes(subnode::ref &, const node &,
+                                             arg_type &&... args) {
+    return 1 + count_subnodes(std::forward<arg_type>(args)...);
+  }
+  template <typename... arg_type>
+  [[nodiscard]] inline size_t count_subnodes(subnode::optional &,
+                                             const std::optional<node> &value,
+                                             arg_type &&... args) {
+    return (value.has_value() ? 1 : 0) +
+           count_subnodes(std::forward<arg_type>(args)...);
+  }
+  template <typename... arg_type>
+  [[nodiscard]] inline size_t count_subnodes(
+      subnode::vector &, const utils::move_vector<node> &value,
+      arg_type &&... args) {
+    return value.size() + count_subnodes(std::forward<arg_type>(args)...);
+  }
+
+  inline void do_init() const noexcept {}
+  template <typename... arg_type>
+  inline void do_init(subnode::ref &var, node value, arg_type &&... args) {
+    var.index = _children.size();
+    _children.emplace_back(std::move(value));
+    do_init(std::forward<arg_type>(args)...);
+  }
+  template <typename... arg_type>
+  inline void do_init(subnode::optional &var, std::optional<node> value,
+                      arg_type &&... args) {
+    var.index = _children.size();
+    if (value.has_value()) {
+      var.has_value = true;
+      _children.emplace_back(std::move(value).value());
+    } else {
+      var.has_value = false;
+    }
+    do_init(std::forward<arg_type>(args)...);
+  }
+  template <typename... arg_type>
+  inline void do_init(subnode::vector &var, utils::move_vector<node> value,
+                      arg_type &&... args) {
+    var.index = _children.size();
+    var.size = value.size();
+    std::move(value.begin(), value.end(), std::back_inserter(_children));
+    do_init(std::forward<arg_type>(args)...);
+  }
 
   template <typename node_type>
   [[nodiscard]] static inline constexpr size_t get_typeid() noexcept;

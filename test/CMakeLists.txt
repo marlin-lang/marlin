@@ -17,6 +17,7 @@ endmacro()
 add_subdirectory(ast)
 add_subdirectory(parse)
 add_subdirectory(exec)
+add_subdirectory(format)
 
 add_executable(${PROJECT_NAME}.test ${SOURCES})
 set_target_properties(${PROJECT_NAME}.test PROPERTIES OUTPUT_NAME test_marlin)

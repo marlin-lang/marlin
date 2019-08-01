@@ -5,6 +5,9 @@
 
 #include <marlin/ast.hpp>
 
+// Testing
+#include <iostream>
+
 namespace marlin::format {
 
 struct highlight {
@@ -21,7 +24,7 @@ struct highlight {
   inline highlight(const ast::base& c) noexcept : _code{c} {}
 
   inline std::vector<token> generate() {
-    generate_tokens(_code);
+    generate_tree(_code);
     auto tokens{std::move(_tokens)};
     _tokens = {};
     return tokens;
@@ -31,7 +34,7 @@ struct highlight {
   const ast::base& _code;
   std::vector<token> _tokens;
 
-  void generate_tokens(const ast::base& c) {
+  void generate_tree(const ast::base& c) {
     if (!c.apply<bool>(
             [this](const auto& node) { return generate_tokens(node); })) {
       for (const auto& child : c.children()) {
@@ -40,7 +43,10 @@ struct highlight {
     }
   }
 
-  template <typename node_type>
+  inline void generate_tokens(const code& c) { generate_tree(c.get()); }
+
+  template <typename node_type, typename = std::enable_if_t<
+                                    std::is_base_of_v<ast::base, node_type>>>
   inline bool generate_tokens(const node_type&) {
     return false;
   }

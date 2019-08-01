@@ -1,0 +1,24 @@
+#ifndef marlin_ast_subnodes_hpp
+#define marlin_ast_subnodes_hpp
+
+namespace marlin::ast {
+
+struct subnode {
+  struct ref {
+    size_t index;
+  };
+
+  struct optional {
+    size_t index;
+    bool has_value;
+  };
+
+  struct vector {
+    size_t index;
+    size_t size;
+  };
+};
+
+};  // namespace marlin::ast
+
+#endif  // marlin_ast_subnodes_hpp

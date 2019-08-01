@@ -1,6 +1,8 @@
 #ifndef marlin_lint_linter_hpp
 #define marlin_lint_linter_hpp
 
+#include <iostream>
+
 #include <marlin/ast.hpp>
 
 namespace marlin::lint {
