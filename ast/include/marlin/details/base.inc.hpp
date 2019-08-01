@@ -27,6 +27,7 @@ struct type_map {
 }  // namespace utils
 
 #define ASTS(X)           \
+  X(placeholder)          \
   X(erroneous_line)       \
   X(program)              \
   X(expression_statement) \

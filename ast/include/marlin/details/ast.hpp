@@ -14,6 +14,12 @@ using nodes_view = utils::vector_view<utils::move_vector<node>>;
 struct statement {};
 struct expression {};
 
+struct placeholder : base::impl<placeholder> {
+  std::string name;
+
+  explicit inline placeholder(std::string _name) : name{std::move(_name)} {}
+};
+
 struct erroneous_line : base::impl<erroneous_line> {
   std::string line;
 

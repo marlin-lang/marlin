@@ -16,9 +16,7 @@ struct node {
     return {new node_type{std::forward<arg_type>(args)...}};
   }
 
-  template <typename node_type,
-            typename = std::enable_if_t<std::is_base_of_v<base, node_type>>>
-  inline node(node_type *n) : _node{n} {}
+  [[nodiscard]] static node make_empty();
 
   ~node();
 
@@ -38,6 +36,10 @@ struct node {
 
  private:
   base *_node;
+
+  template <typename node_type,
+            typename = std::enable_if_t<std::is_base_of_v<base, node_type>>>
+  inline node(node_type *n) : _node{n} {}
 };
 
 }  // namespace ast

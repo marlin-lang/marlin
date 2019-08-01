@@ -36,6 +36,12 @@ struct generator {
 
   // Unused return value type, specified so that the code compiles
   [[noreturn]] static inline jsast::ast::empty_statement get_jsast(
+      ast::placeholder& node) {
+    throw generation_error{"Unexpected placeholder!", node};
+  }
+
+  // Unused return value type, specified so that the code compiles
+  [[noreturn]] static inline jsast::ast::empty_statement get_jsast(
       ast::erroneous_line& node) {
     throw generation_error{"Unparsed chunk encountered!", node};
   }
