@@ -25,28 +25,21 @@ enum class token_type : uint8_t {
   identifier,
   number,
   string,
+  placeholder,
   error,
   eof
 };
 
 static constexpr std::array _token_type_name_map{
-    "\"(\"" /* left_paren */,
-    "\")\"" /* right_paren */,
-    "\".\"" /* dot */,
-    "\",\"" /* comma */,
-    "\";\"" /* semicolon */,
-    "\"+\"" /* plus */,
-    "\"-\"" /* minus */,
-    "\"*\"" /* star */,
-    "\"/\"" /* slash */,
-    "\"let\"" /* kwd_let */,
-    "\"true\"" /* kwd_true */,
-    "\"false\"" /* kwd_false */,
-    "(id)" /* identifier */,
-    "(number)" /* number */,
-    "(string)" /* string */,
-    "character" /* error */,
-    "end of file" /* eof */
+    "\"(\"" /* left_paren */,  "\")\"" /* right_paren */,
+    "\".\"" /* dot */,         "\",\"" /* comma */,
+    "\";\"" /* semicolon */,   "\"+\"" /* plus */,
+    "\"-\"" /* minus */,       "\"*\"" /* star */,
+    "\"/\"" /* slash */,       "\"let\"" /* kwd_let */,
+    "\"true\"" /* kwd_true */, "\"false\"" /* kwd_false */,
+    "(id)" /* identifier */,   "(number)" /* number */,
+    "(string)" /* string */,   "(placeholder)" /* placeholder */,
+    "character" /* error */,   "end of file" /* eof */
 };
 inline constexpr const char* name_for(token_type type) noexcept {
   return _token_type_name_map[static_cast<uint8_t>(type)];

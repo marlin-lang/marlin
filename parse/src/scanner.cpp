@@ -37,6 +37,8 @@ token scanner::scan() {
         [[fallthrough]];
       case '"':
         return make_string_token();
+      case '@':
+        return make_placeholder_token();
       default:
         if (is_id_head(*_current)) {
           return make_identifier_or_keyword_token();
@@ -143,6 +145,18 @@ token scanner::make_string_token() {
   // handling errors
   return {token_type::string, start, start_iter,
           code::make<ast::string_literal>(std::move(result))};
+}
+
+token scanner::make_placeholder_token() {
+  const auto start{_current_loc};
+  const auto start_iter{_current};
+  advance();
+  while (_current < _source.end() &&
+         (is_id_head(*_current) || is_digit(*_current))) {
+    advance();
+  }
+  return {token_type::placeholder, start, start_iter,
+          code::make<ast::placeholder>(std::string{start_iter + 1, _current})};
 }
 
 }  // namespace marlin::parse

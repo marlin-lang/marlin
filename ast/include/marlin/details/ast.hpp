@@ -8,10 +8,6 @@
 
 namespace marlin::ast {
 
-using const_nodes_view =
-    utils::_bak_const_vector_view<utils::move_vector<node>>;
-using nodes_view = utils::_bak_vector_view<utils::move_vector<node>>;
-
 // Forward declarations
 struct statement {};
 struct expression {};
@@ -72,7 +68,7 @@ struct expression_statement : base::impl<expression_statement>, statement {
   }
 
  private:
-  subnode::ref _expression;
+  subnode::concrete _expression;
 };
 
 struct unary_expression : base::impl<unary_expression>, expression {
@@ -98,7 +94,7 @@ struct unary_expression : base::impl<unary_expression>, expression {
   }
 
  private:
-  subnode::ref _argument;
+  subnode::concrete _argument;
 };
 
 struct binary_expression : base::impl<binary_expression>, expression {
@@ -125,8 +121,8 @@ struct binary_expression : base::impl<binary_expression>, expression {
   }
 
  private:
-  subnode::ref _left;
-  subnode::ref _right;
+  subnode::concrete _left;
+  subnode::concrete _right;
 
   source_loc _op_loc;
 };
@@ -153,7 +149,7 @@ struct call_expression : base::impl<call_expression>, expression {
   }
 
  private:
-  subnode::ref _callee;
+  subnode::concrete _callee;
   subnode::vector _arguments;
 };
 

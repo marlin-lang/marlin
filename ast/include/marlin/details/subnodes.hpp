@@ -3,7 +3,7 @@
 
 namespace marlin::ast::subnode {
 
-struct ref {
+struct concrete {
   size_t index;
 };
 

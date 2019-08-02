@@ -151,6 +151,8 @@ struct interpreter {
       case token_type::number:
         [[fallthrough]];
       case token_type::string:
+        [[fallthrough]];
+      case token_type::placeholder:
         return parse_standalone_token();
       default:
         synchronize_and_throw({std::string{"Unexpected "} +

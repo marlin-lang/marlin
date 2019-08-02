@@ -60,6 +60,7 @@ struct scanner {
   [[nodiscard]] token make_identifier_or_keyword_token();
   [[nodiscard]] token make_number_token();
   [[nodiscard]] token make_string_token();
+  [[nodiscard]] token make_placeholder_token();
 
   inline void advance() {
     _current++;

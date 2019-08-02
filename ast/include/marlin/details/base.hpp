@@ -37,6 +37,12 @@ struct base {
   template <typename node_type>
   struct impl;
 
+  // Only work with heap allocation and pointers
+  inline base(base &&) = delete;
+  inline base(const base &) = delete;
+  inline base &operator=(base &&) = delete;
+  inline base &operator=(const base &) = delete;
+
   [[nodiscard]] inline size_t type() const { return _typeid; }
 
   template <typename node_type>
@@ -129,8 +135,8 @@ struct base {
     do_init(std::forward<arg_type>(args)...);
   }
 
-  inline node &get_subnode(subnode::ref &r) { return _children[r.index]; }
-  inline const node &get_subnode(const subnode::ref &r) const {
+  inline node &get_subnode(subnode::concrete &r) { return _children[r.index]; }
+  inline const node &get_subnode(const subnode::concrete &r) const {
     return _children[r.index];
   }
 
@@ -154,7 +160,7 @@ struct base {
 
   [[nodiscard]] inline size_t count_subnodes() { return 0; }
   template <typename... arg_type>
-  [[nodiscard]] inline size_t count_subnodes(subnode::ref &, const node &,
+  [[nodiscard]] inline size_t count_subnodes(subnode::concrete &, const node &,
                                              arg_type &&... args) {
     return 1 + count_subnodes(std::forward<arg_type>(args)...);
   }
@@ -174,7 +180,7 @@ struct base {
 
   inline void do_init() const noexcept {}
   template <typename... arg_type>
-  inline void do_init(subnode::ref &var, node value, arg_type &&... args) {
+  inline void do_init(subnode::concrete &var, node value, arg_type &&... args) {
     var.index = _children.size();
     _children.emplace_back(std::move(value));
     do_init(std::forward<arg_type>(args)...);
