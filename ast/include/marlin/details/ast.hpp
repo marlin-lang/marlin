@@ -8,7 +8,6 @@
 
 namespace marlin::ast {
 
-// Forward declarations
 struct statement {};
 struct expression {};
 

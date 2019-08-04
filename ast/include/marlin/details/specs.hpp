@@ -1,6 +1,7 @@
 #ifndef marlin_ast_specs_hpp
 #define marlin_ast_specs_hpp
 
+#include <array>
 #include <cstdint>
 
 namespace marlin::ast {

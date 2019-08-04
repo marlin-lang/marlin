@@ -191,7 +191,7 @@ struct base {
     var.index = _children.size();
     if (value.has_value()) {
       var.has_value = true;
-      _children.emplace_back(std::move(value).value());
+      _children.emplace_back(*std::move(value));
     } else {
       var.has_value = false;
     }

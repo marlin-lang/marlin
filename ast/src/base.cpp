@@ -1,6 +1,6 @@
 #include "base.hpp"
 
-// To provide full definition for struct node
+// To provide full definition for struct base
 #include "ast.hpp"
 #include "base.inc.hpp"
 

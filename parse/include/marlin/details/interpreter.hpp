@@ -185,7 +185,7 @@ struct interpreter {
   inline code parse_standalone_token() {
     const auto start{_current_token.start};
     if (_current_token.parsed_node.has_value()) {
-      auto node{std::move(_current_token.parsed_node).value()};
+      auto node{*std::move(_current_token.parsed_node)};
       next();
       return finalize_node(std::move(node), start);
     } else {
